@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="screen_off"
+        android:shortcutShortLabel="@string/screen_off">
+        <intent
+            android:action="io.github.peteroomen.powerbubble.action.SCREEN_OFF"
+            android:targetClass="io.github.peteroomen.powerbubble.LockActivity"
+            android:targetPackage="io.github.peteroomen.powerbubble" />
+    </shortcut>
+</shortcuts>
