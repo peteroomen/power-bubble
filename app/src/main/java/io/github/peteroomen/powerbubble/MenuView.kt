@@ -120,6 +120,7 @@ class MenuView(
                 else -> circle(Palette.GLASS, Palette.STROKE, context.dp(1))
             }
             contentDescription = context.getString(label)
+            tooltipText = context.getString(label)
             isFocusable = true
             setOnClickListener { onClick() }
             addView(
@@ -136,22 +137,11 @@ class MenuView(
                 LayoutParams(context.dp(22), context.dp(22), Gravity.CENTER),
             )
         }
-        val text = TextView(context).apply {
-            setText(label)
-            setTextColor(Palette.INK)
-            textSize = 11f
-            typeface = Typeface.DEFAULT_BOLD
-            gravity = Gravity.CENTER
-            setShadowLayer(8f, 0f, 1f, 0xCC000000.toInt())
-            importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
+        // Icons only; the name is read out by screen readers and shown on long press
         val column = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
             addView(button, LinearLayout.LayoutParams(circleSize, circleSize))
-            addView(text, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
-                topMargin = context.dp(5)
-            })
         }
         addView(column, LayoutParams(itemWidth, LayoutParams.WRAP_CONTENT))
         items += Item(column, circleSize, target)
