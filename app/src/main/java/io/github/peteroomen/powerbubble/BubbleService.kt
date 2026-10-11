@@ -68,6 +68,13 @@ class BubbleService : AccessibilityService() {
 
     fun openNotifications(): Boolean = performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
 
+    /** Screenshot with the bubble hidden. */
+    fun screenshot() {
+        overlay?.takeScreenshot() ?: captureScreen()
+    }
+
+    fun captureScreen(): Boolean = performGlobalAction(GLOBAL_ACTION_TAKE_SCREENSHOT)
+
     fun restart() {
         if (!PowerActions.reboot()) performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
     }

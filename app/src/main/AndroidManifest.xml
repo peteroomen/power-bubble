@@ -37,6 +37,7 @@
             <intent-filter>
                 <action android:name="io.github.peteroomen.powerbubble.action.SCREEN_OFF" />
                 <action android:name="io.github.peteroomen.powerbubble.action.NOTIFICATIONS" />
+                <action android:name="io.github.peteroomen.powerbubble.action.SCREENSHOT" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
@@ -66,6 +67,17 @@
             <meta-data
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
+        </service>
+
+        <service
+            android:name=".ScreenshotTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_screenshot"
+            android:label="@string/screenshot"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
         </service>
 
         <service

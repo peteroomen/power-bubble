@@ -16,7 +16,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Full-screen menu: a dimmed scrim, a copy of the bubble, and Restart / Screen off / Shut down
+ * Full-screen menu: a dimmed scrim, a copy of the bubble, and Screenshot / Screen off / Restart / Shut down
  * fanned out toward the middle of the screen. Restart and Shut down ask first when they'll act
  * immediately (Shizuku); otherwise the system power menu does the asking.
  */
@@ -33,6 +33,7 @@ class MenuView(
     interface Listener {
         fun onDismiss()
         fun onScreenOff()
+        fun onScreenshot()
         fun onRestart()
         fun onShutdown()
     }
@@ -42,7 +43,7 @@ class MenuView(
     private class Item(val view: View, val circleSize: Int, val target: PointF)
 
     private val itemWidth = context.dp(88)
-    private val radius = context.dp(96)
+    private val radius = context.dp(108)
     private val items = mutableListOf<Item>()
     private var card: View? = null
 
@@ -52,15 +53,16 @@ class MenuView(
         addView(closeButton())
 
         val targets = targets()
-        addItem(R.drawable.ic_restart, R.string.restart, Style.NORMAL, targets[0]) {
+        addItem(R.drawable.ic_screenshot, R.string.screenshot, Style.NORMAL, targets[0]) { listener.onScreenshot() }
+        addItem(R.drawable.ic_moon, R.string.screen_off, Style.PRIMARY, targets[1]) { listener.onScreenOff() }
+        addItem(R.drawable.ic_restart, R.string.restart, Style.NORMAL, targets[2]) {
             if (confirmFirst) {
                 showCard(R.string.restart_title, R.string.restart_body, R.string.restart, danger = false) { listener.onRestart() }
             } else {
                 listener.onRestart()
             }
         }
-        addItem(R.drawable.ic_moon, R.string.screen_off, Style.PRIMARY, targets[1]) { listener.onScreenOff() }
-        addItem(R.drawable.ic_power, R.string.shut_down, Style.DANGER, targets[2]) {
+        addItem(R.drawable.ic_power, R.string.shut_down, Style.DANGER, targets[3]) {
             if (confirmFirst) {
                 showCard(R.string.shutdown_title, R.string.shutdown_body, R.string.shutdown_go, danger = true) { listener.onShutdown() }
             } else {
@@ -96,9 +98,9 @@ class MenuView(
         val nearTop = center.y < context.dp(170)
         val nearBottom = center.y > screen.y - context.dp(170)
         var degrees = when {
-            nearTop -> listOf(180.0, 225.0, 270.0)
-            nearBottom -> listOf(90.0, 135.0, 180.0)
-            else -> listOf(135.0, 180.0, 225.0)
+            nearTop -> listOf(180.0, 210.0, 240.0, 270.0)
+            nearBottom -> listOf(90.0, 120.0, 150.0, 180.0)
+            else -> listOf(120.0, 160.0, 200.0, 240.0)
         }
         if (onLeft) degrees = degrees.map { 180.0 - it }
         return degrees.map { d ->

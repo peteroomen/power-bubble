@@ -2,16 +2,25 @@
 
 A floating software power button for Android, for phones with a broken or missing power key.
 
-A small bubble sits on the edge of the screen above every app. Tap it and three controls fan out:
+A small bubble sits on the edge of the screen above every app. Tap it and four controls fan out:
 
+- **Screenshot**: takes a normal system screenshot, with the bubble hidden so it isn't in the picture.
 - **Screen off**: locks the phone exactly like the power button. Fingerprint and face unlock keep working.
 - **Restart** and **Shut down**: go straight through [Shizuku](https://shizuku.rikka.app/) when it's running, after a confirmation. Without Shizuku they open the system power menu.
 
 You can also switch tapping to turn the screen off straight away, with a long press for the menu.
 
-Drag the bubble anywhere and it snaps to the nearest edge. Drag it onto the ✕ to hide it, and bring it back from the **Power bubble** Quick Settings tile. There's also a **Screen off** tile and a long-press shortcut on the app icon.
+Drag the bubble anywhere and it snaps to the nearest edge. Drag it onto the ✕ to hide it, and bring it back from the **Power bubble** Quick Settings tile. There are also **Screen off** and **Screenshot** tiles, and long-press shortcuts for both on the app icon. The Screenshot tile closes the shade first so it isn't in the picture.
+
+Screenshots taken any other way (from the recent apps screen, say) will include the bubble. Android doesn't let apps hide their windows from those.
 
 ## Install
+
+Google Play Protect may block the install with "App blocked to protect your device". It does this for apps from outside the Play Store that ask for accessibility access, which Power Bubble needs. Ways around it, easiest first:
+
+- **Install anyway:** if the warning has a *More details* link, tap it and choose *Install anyway*.
+- **Pause Play Protect:** open the Play Store, tap your profile picture, then *Play Protect → ⚙ (settings)*, and turn off *Scan apps with Play Protect*. Install the APK, then turn scanning back on. If Play Protect later suggests removing the app, choose to keep it.
+- **Install from a computer:** on the phone, tap *Settings → About phone → Build number* seven times, then turn on *Developer options → USB debugging*. Connect the phone and run `adb install power-bubble-debug.apk`. The block only applies to APKs opened on the phone, not to installs from a computer.
 
 1. Download the APK from the latest run of the **Build** workflow (Actions tab → latest run → *power-bubble-debug*), or build it yourself with `./gradlew assembleDebug`.
 2. Open Power Bubble and tap **Open Accessibility settings**, then turn on Power Bubble.
@@ -32,6 +41,7 @@ Other apps can turn the screen off, or open the notification shade, by starting 
 ```kotlin
 startActivity(Intent("io.github.peteroomen.powerbubble.action.SCREEN_OFF"))
 startActivity(Intent("io.github.peteroomen.powerbubble.action.NOTIFICATIONS"))
+startActivity(Intent("io.github.peteroomen.powerbubble.action.SCREENSHOT"))
 ```
 
 [niagara-like-launcher](https://github.com/peteroomen/niagara-like-launcher) uses these for double-tap and swipe down.
@@ -42,6 +52,7 @@ startActivity(Intent("io.github.peteroomen.powerbubble.action.NOTIFICATIONS"))
 |---|---|
 | Bubble, menu, drop target | `TYPE_ACCESSIBILITY_OVERLAY` windows owned by `BubbleService`. No "display over other apps" permission needed. |
 | Screen off | `AccessibilityService.performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)` |
+| Screenshot | `GLOBAL_ACTION_TAKE_SCREENSHOT`, after hiding the bubble and closing the menu |
 | Restart / Shut down | `IPowerManager.reboot` / `shutdown` through a Shizuku binder (the shell user holds `REBOOT`), falling back to `GLOBAL_ACTION_POWER_DIALOG` |
 | Show / hide | `BubbleTileService` Quick Settings tile |
 | Settings | `SharedPreferences` (`Prefs.kt`) |

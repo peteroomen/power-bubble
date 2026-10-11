@@ -3,6 +3,7 @@
     <string name="bubble_description">Power bubble</string>
     <string name="close_menu">Close power menu</string>
     <string name="screen_off">Screen off</string>
+    <string name="screenshot">Screenshot</string>
     <string name="restart">Restart</string>
     <string name="shut_down">Shut down</string>
     <string name="cancel">Cancel</string>

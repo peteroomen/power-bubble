@@ -111,6 +111,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
                     // Let the menu window disappear first so it doesn't flash on unlock.
                     handler.postDelayed({ service.lock() }, 120)
                 }
+                override fun onScreenshot() = takeScreenshot()
                 override fun onRestart() {
                     closeMenu()
                     service.restart()
@@ -125,6 +126,24 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         menu = m
         bubble.visibility = View.INVISIBLE // the menu draws its own copy in the same spot
         m.animateIn()
+    }
+
+    /**
+     * Takes a system screenshot without the bubble in it: the bubble is hidden first and comes back
+     * once the screenshot has been captured.
+     */
+    fun takeScreenshot() {
+        closeMenu()
+        handler.removeCallbacks(fade)
+        bubble.visibility = View.INVISIBLE
+        handler.postDelayed({
+            service.captureScreen()
+            handler.postDelayed({
+                bubble.visibility = View.VISIBLE
+                wake()
+                scheduleFade()
+            }, SCREENSHOT_RESTORE_MS)
+        }, SCREENSHOT_DELAY_MS)
     }
 
     private fun onTap() {
@@ -346,5 +365,8 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     private companion object {
         const val IDLE_ALPHA = 0.45f
         const val IDLE_DELAY_MS = 2600L
+        // Long enough for the menu window to disappear before the capture, and for the capture to finish after
+        const val SCREENSHOT_DELAY_MS = 300L
+        const val SCREENSHOT_RESTORE_MS = 1200L
     }
 }

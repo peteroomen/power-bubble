@@ -10,4 +10,14 @@
             android:targetClass="io.github.peteroomen.powerbubble.LockActivity"
             android:targetPackage="io.github.peteroomen.powerbubble" />
     </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutId="screenshot"
+        android:shortcutShortLabel="@string/screenshot">
+        <intent
+            android:action="io.github.peteroomen.powerbubble.action.SCREENSHOT"
+            android:targetClass="io.github.peteroomen.powerbubble.LockActivity"
+            android:targetPackage="io.github.peteroomen.powerbubble" />
+    </shortcut>
 </shortcuts>
