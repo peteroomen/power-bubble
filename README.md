@@ -10,6 +10,8 @@ A small bubble sits on the edge of the screen above every app. Tap it and four c
 
 You can also switch tapping to turn the screen off straight away, with a long press for the menu.
 
+The bubble and its buttons use the same liquid glass look as the launcher, and opening the menu blurs the screen behind it on Android 12+ phones that support window blur.
+
 Drag the bubble anywhere and it snaps to the nearest edge. Drag it onto the ✕ to hide it, and bring it back from the **Power bubble** Quick Settings tile. There are also **Screen off** and **Screenshot** tiles, and long-press shortcuts for both on the app icon. The Screenshot tile closes the shade first so it isn't in the picture.
 
 Screenshots taken any other way (from the recent apps screen, say) will include the bubble. Android doesn't let apps hide their windows from those.

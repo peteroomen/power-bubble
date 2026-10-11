@@ -6,6 +6,7 @@ import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.PointF
 import android.hardware.display.DisplayManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.Display
@@ -98,8 +99,10 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         handler.removeCallbacks(fade)
         val screen = screenSize()
         val center = PointF(params.x + size / 2f, params.y + size / 2f)
+        val blurBehind = Build.VERSION.SDK_INT >= 31 && wm.isCrossWindowBlurEnabled
         val m = MenuView(
             service,
+            blurred = blurBehind,
             center = center,
             onLeft = center.x < screen.x / 2f,
             screen = screen,
@@ -122,7 +125,13 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
                 }
             },
         )
-        wm.addView(m, overlayParams(screen.x, screen.y))
+        wm.addView(m, overlayParams(screen.x, screen.y).apply {
+            // Blur everything behind the menu (Android 12+, where the phone supports it)
+            if (blurBehind) {
+                flags = flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
+                blurBehindRadius = service.dp(28)
+            }
+        })
         menu = m
         bubble.visibility = View.INVISIBLE // the menu draws its own copy in the same spot
         m.animateIn()
@@ -311,14 +320,14 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         if (hot == dismissHot) return
         dismissHot = hot
         dismiss.background = if (hot) circle(0x59FF8566, Palette.DANGER, service.dp(2))
-        else circle(0x66000000, 0x8CFFFFFF.toInt(), service.dp(2))
+        else GlassDrawable(cornerRadius = null, rimWidth = service.dp(1).toFloat())
         val scale = if (hot) 1.2f else 1f
         dismiss.animate().scaleX(scale).scaleY(scale).setDuration(150).start()
         if (hot) bubble.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
     }
 
     private fun makeBubble() = FrameLayout(service).apply {
-        background = circle(Palette.GLASS, Palette.STROKE, service.dp(1))
+        background = GlassDrawable(cornerRadius = null, rimWidth = service.dp(1).toFloat())
         contentDescription = service.getString(R.string.bubble_description)
         addView(
             ImageView(service).apply {
@@ -332,7 +341,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     }
 
     private fun makeDismiss() = FrameLayout(service).apply {
-        background = circle(0x66000000, 0x8CFFFFFF.toInt(), service.dp(2))
+        background = GlassDrawable(cornerRadius = null, rimWidth = service.dp(1).toFloat())
         addView(
             ImageView(service).apply {
                 setImageResource(R.drawable.ic_close)
