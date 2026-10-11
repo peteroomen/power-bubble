@@ -66,6 +66,8 @@ class BubbleService : AccessibilityService() {
     /** Same as pressing the power button: biometric unlock keeps working. */
     fun lock(): Boolean = performGlobalAction(GLOBAL_ACTION_LOCK_SCREEN)
 
+    fun openNotifications(): Boolean = performGlobalAction(GLOBAL_ACTION_NOTIFICATIONS)
+
     fun restart() {
         if (!PowerActions.reboot()) performGlobalAction(GLOBAL_ACTION_POWER_DIALOG)
     }

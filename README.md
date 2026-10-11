@@ -27,11 +27,14 @@ To wake the screen without the button, turn on double-tap to wake, lift to wake 
 
 ## For launchers
 
-Other apps can turn the screen off by starting this intent (the accessibility service must be on):
+Other apps can turn the screen off, or open the notification shade, by starting these intents (the accessibility service must be on):
 
 ```kotlin
 startActivity(Intent("io.github.peteroomen.powerbubble.action.SCREEN_OFF"))
+startActivity(Intent("io.github.peteroomen.powerbubble.action.NOTIFICATIONS"))
 ```
+
+[niagara-like-launcher](https://github.com/peteroomen/niagara-like-launcher) uses these for double-tap and swipe down.
 
 ## How it works
 

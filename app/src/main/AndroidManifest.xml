@@ -25,7 +25,7 @@
                 android:resource="@xml/shortcuts" />
         </activity>
 
-        <!-- Turns the screen off and finishes immediately. Launchers and shortcuts can start it. -->
+        <!-- Turns the screen off (or opens notifications) and finishes immediately. Launchers and shortcuts can start it. -->
         <activity
             android:name=".LockActivity"
             android:excludeFromRecents="true"
@@ -36,6 +36,7 @@
             android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
                 <action android:name="io.github.peteroomen.powerbubble.action.SCREEN_OFF" />
+                <action android:name="io.github.peteroomen.powerbubble.action.NOTIFICATIONS" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
