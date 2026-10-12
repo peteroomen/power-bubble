@@ -24,8 +24,17 @@ jobs:
       # without uninstalling (which would also switch the accessibility service off).
       - name: Use shared debug key
         if: env.DEBUG_KEYSTORE != ''
-        run: mkdir -p ~/.android && echo "$DEBUG_KEYSTORE" | base64 -d > ~/.android/debug.keystore
+        run: |
+          echo "$DEBUG_KEYSTORE" | base64 -d > "$RUNNER_TEMP/debug.keystore"
+          echo "DEBUG_KEYSTORE_FILE=$RUNNER_TEMP/debug.keystore" >> "$GITHUB_ENV"
       - run: ./gradlew assembleDebug
+      # Never publish an APK that wouldn't install over the one on the phone
+      - name: Check the APK is signed with the shared key
+        if: env.DEBUG_KEYSTORE != ''
+        run: |
+          apksigner="$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -1)apksigner"
+          "$apksigner" verify --print-certs app/build/outputs/apk/debug/app-debug.apk | tee certs.txt
+          grep -qi "SHA-256 digest: 5b6973b159eafc40f5509ae8f4dcf0125a66110236303319ee7f6c73778deae1" certs.txt
       - name: Name the APK after its version
         run: cp app/build/outputs/apk/debug/app-debug.apk power-bubble-0.1.${{ github.run_number }}.apk
       - uses: actions/upload-artifact@v4

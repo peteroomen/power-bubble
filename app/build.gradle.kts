@@ -19,6 +19,13 @@ android {
         versionName = "0.1.${build ?: 0}"
     }
 
+    // CI signs with the shared debug key it's given, so updates install over the app on the phone
+    signingConfigs {
+        getByName("debug") {
+            System.getenv("DEBUG_KEYSTORE_FILE")?.let { storeFile = file(it) }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
