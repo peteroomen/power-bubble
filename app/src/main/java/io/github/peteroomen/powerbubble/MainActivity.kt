@@ -21,6 +21,8 @@ class MainActivity : Activity() {
     private lateinit var shizukuAction: Button
     private lateinit var showBubble: Switch
     private lateinit var tapMode: RadioGroup
+    private lateinit var look: RadioGroup
+    private lateinit var lookSummary: TextView
 
     private val permissionListener = Shizuku.OnRequestPermissionResultListener { _, _ -> runOnUiThread { refresh() } }
     private val binderReceived = Shizuku.OnBinderReceivedListener { runOnUiThread { refresh() } }
@@ -37,6 +39,8 @@ class MainActivity : Activity() {
         shizukuAction = findViewById(R.id.shizukuAction)
         showBubble = findViewById(R.id.showBubble)
         tapMode = findViewById(R.id.tapMode)
+        look = findViewById(R.id.look)
+        lookSummary = findViewById(R.id.lookSummary)
 
         openAccessibility.setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
@@ -99,6 +103,36 @@ class MainActivity : Activity() {
             prefs.tapMode = if (id == R.id.tapMenu) TapMode.MENU else TapMode.SCREEN_OFF
             BubbleService.instance?.onSettingsChanged()
         }
+
+        look.setOnCheckedChangeListener(null)
+        look.check(
+            when (prefs.look) {
+                Look.GLASS -> R.id.lookGlass
+                Look.BLUR -> R.id.lookBlur
+                Look.FLAT -> R.id.lookFlat
+            },
+        )
+        showLookSummary()
+        look.setOnCheckedChangeListener { _, id ->
+            prefs.look = when (id) {
+                R.id.lookGlass -> Look.GLASS
+                R.id.lookFlat -> Look.FLAT
+                else -> Look.BLUR
+            }
+            showLookSummary()
+            BubbleService.instance?.onLookChanged()
+        }
+    }
+
+    private fun showLookSummary() {
+        val summary = getString(
+            when (prefs.look) {
+                Look.GLASS -> R.string.look_glass_summary
+                Look.BLUR -> R.string.look_blur_summary
+                Look.FLAT -> R.string.look_flat_summary
+            },
+        )
+        lookSummary.text = if (prefs.look != Look.FLAT && !blurAvailable()) summary + "\n\n" + getString(R.string.look_no_blur) else summary
     }
 
     private fun onShizukuAction() {

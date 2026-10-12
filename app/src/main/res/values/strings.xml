@@ -15,7 +15,8 @@
     <string name="shutdown_title">Shut down?</string>
     <string name="shutdown_body">Your power button is missing, so you may not be able to turn the phone back on. Some phones start up when plugged into a charger. Check yours before relying on it.</string>
     <string name="shutdown_go">Shut down anyway</string>
-    <string name="bubble_hidden">Bubble hidden. Turn it back on from the Power bubble Quick Settings tile.</string>
+    <string name="bubble_hidden">Bubble hidden. Bring it back with the accessibility shortcut, the Power bubble Quick Settings tile, or by holding the Power Bubble app icon.</string>
+    <string name="toggle_bubble">Show / hide bubble</string>
 
     <string name="accessibility_description">Shows a floating button that turns the screen off and opens restart and shut down controls. It replaces a broken power button. Power Bubble doesn\'t read what\'s on your screen.</string>
     <string name="service_off_toast">Turn on Power Bubble in Accessibility settings first.</string>
@@ -42,4 +43,14 @@
     <string name="tap_label">When I tap the bubble</string>
     <string name="tap_menu">Open the menu</string>
     <string name="tap_screen_off">Turn the screen off (hold for the menu)</string>
+    <string name="bring_back">Getting it back after you hide it</string>
+    <string name="bring_back_body">• The accessibility shortcut (the accessibility button, gesture or volume keys) shows and hides the bubble. Set one up under Accessibility › Power Bubble › Power Bubble shortcut.\n• The Power bubble Quick Settings tile.\n• Hold the Power Bubble app icon and choose Show / hide bubble.</string>
+    <string name="look_label">Look</string>
+    <string name="look_glass">Glass</string>
+    <string name="look_blur">Blur</string>
+    <string name="look_flat">Flat</string>
+    <string name="look_glass_summary">Clear glass: barely blurred, a light tint and a bright rim. Android can\'t show an overlay what\'s behind it, so it can\'t bend it like the launcher\'s glass does.</string>
+    <string name="look_blur_summary">Blurs what\'s behind the bubble under a light tint, like the launcher\'s Blur panels.</string>
+    <string name="look_flat_summary">A plain see-through dark circle, no blur.</string>
+    <string name="look_no_blur">Your phone isn\'t allowing blur right now (it\'s off in battery saver, and on some phones under Developer options), so Glass and Blur use a darker tint instead.</string>
 </resources>

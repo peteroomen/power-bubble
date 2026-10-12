@@ -41,6 +41,10 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     private val margin = service.dp(8)
     private val touchSlop = ViewConfiguration.get(service).scaledTouchSlop
 
+    private val bubbleIcon = ImageView(service).apply {
+        setImageResource(R.drawable.ic_power)
+        setColorFilter(Palette.INK)
+    }
     private val bubble = makeBubble()
     private val params = overlayParams(size, size)
     private var attached = false
@@ -53,12 +57,36 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
 
     private var menu: MenuView? = null
     private var snapAnim: ValueAnimator? = null
-    private val fade = Runnable { bubble.animate().alpha(IDLE_ALPHA).setDuration(350).start() }
+    private var fadeAnim: ValueAnimator? = null
+    private val fade = Runnable {
+        fadeAnim?.cancel()
+        fadeAnim = ValueAnimator.ofFloat(1f, IDLE_ALPHA).apply {
+            duration = 350
+            addUpdateListener { setBubbleAlpha(it.animatedValue as Float) }
+            start()
+        }
+    }
+
+    /** Fades the bubble's glass, blur and icon together (a real blur ignores the view's own alpha). */
+    private fun setBubbleAlpha(alpha: Float) {
+        bubble.background?.alpha = (alpha * 255).roundToInt()
+        bubbleIcon.alpha = alpha
+    }
+
+    /** The look changed in settings. */
+    fun applyLook() {
+        closeMenu()
+        bubble.setLook(prefs.look, null)
+        dismiss.setLook(prefs.look, null)
+        dismissHot = false
+        wake()
+        scheduleFade()
+    }
 
     fun show() {
         if (attached) return
         placeFromPrefs()
-        bubble.alpha = 1f
+        setBubbleAlpha(1f)
         bubble.visibility = View.VISIBLE
         wm.addView(bubble, params)
         attached = true
@@ -99,10 +127,12 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         handler.removeCallbacks(fade)
         val screen = screenSize()
         val center = PointF(params.x + size / 2f, params.y + size / 2f)
-        val blurBehind = Build.VERSION.SDK_INT >= 31 && wm.isCrossWindowBlurEnabled
+        val look = prefs.look
+        val blurRadius = service.menuBlurRadius(look)
         val m = MenuView(
             service,
-            blurred = blurBehind,
+            look = look,
+            blurred = blurRadius != null,
             center = center,
             onLeft = center.x < screen.x / 2f,
             screen = screen,
@@ -127,9 +157,9 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         )
         wm.addView(m, overlayParams(screen.x, screen.y).apply {
             // Blur everything behind the menu (Android 12+, where the phone supports it)
-            if (blurBehind) {
+            if (blurRadius != null && Build.VERSION.SDK_INT >= 31) {
                 flags = flags or WindowManager.LayoutParams.FLAG_BLUR_BEHIND
-                blurBehindRadius = service.dp(28)
+                blurBehindRadius = blurRadius
             }
         })
         menu = m
@@ -287,8 +317,8 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
 
     private fun wake() {
         handler.removeCallbacks(fade)
-        bubble.animate().cancel()
-        bubble.alpha = 1f
+        fadeAnim?.cancel()
+        setBubbleAlpha(1f)
     }
 
     private fun scheduleFade() {
@@ -319,21 +349,17 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     private fun setDismissHot(hot: Boolean) {
         if (hot == dismissHot) return
         dismissHot = hot
-        dismiss.background = if (hot) circle(0x59FF8566, Palette.DANGER, service.dp(2))
-        else GlassDrawable(cornerRadius = null, rimWidth = service.dp(1).toFloat())
+        if (hot) dismiss.background = circle(0x59FF8566, Palette.DANGER, service.dp(2)) else dismiss.setLook(prefs.look, null)
         val scale = if (hot) 1.2f else 1f
         dismiss.animate().scaleX(scale).scaleY(scale).setDuration(150).start()
         if (hot) bubble.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
     }
 
     private fun makeBubble() = FrameLayout(service).apply {
-        background = GlassDrawable(cornerRadius = null, rimWidth = service.dp(1).toFloat())
+        setLook(prefs.look, null)
         contentDescription = service.getString(R.string.bubble_description)
         addView(
-            ImageView(service).apply {
-                setImageResource(R.drawable.ic_power)
-                setColorFilter(Palette.INK)
-            },
+            bubbleIcon,
             FrameLayout.LayoutParams(service.dp(24), service.dp(24), Gravity.CENTER),
         )
         setOnTouchListener(BubbleTouch())
@@ -341,7 +367,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     }
 
     private fun makeDismiss() = FrameLayout(service).apply {
-        background = GlassDrawable(cornerRadius = null, rimWidth = service.dp(1).toFloat())
+        setLook(prefs.look, null)
         addView(
             ImageView(service).apply {
                 setImageResource(R.drawable.ic_close)

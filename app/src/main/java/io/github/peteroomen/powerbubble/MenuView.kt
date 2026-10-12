@@ -23,6 +23,7 @@ import kotlin.math.sin
 @SuppressLint("ViewConstructor")
 class MenuView(
     context: Context,
+    private val look: Look,
     /** The screen behind is blurred, so the glass can be lighter and the scrim fainter. */
     private val blurred: Boolean,
     private val center: PointF,
@@ -45,7 +46,6 @@ class MenuView(
     private class Item(val view: View, val circleSize: Int, val target: PointF)
 
     private val itemWidth = context.dp(88)
-    private val glassTint = if (blurred) Palette.GLASS_TINT_LIGHT else Palette.GLASS_TINT
     private val radius = context.dp(108)
     private val items = mutableListOf<Item>()
     private var card: View? = null
@@ -118,7 +118,7 @@ class MenuView(
     private fun addItem(icon: Int, label: Int, style: Style, target: PointF, onClick: () -> Unit) {
         val circleSize = context.dp(if (style == Style.PRIMARY) 56 else 46)
         val button = FrameLayout(context).apply {
-            background = GlassDrawable(null, context.dp(1).toFloat(), glassTint)
+            background = context.glassFor(look, null, blurred)
             contentDescription = context.getString(label)
             tooltipText = context.getString(label)
             isFocusable = true
@@ -150,7 +150,7 @@ class MenuView(
     private fun closeButton(): View {
         val size = context.dp(52)
         return FrameLayout(context).apply {
-            background = GlassDrawable(null, context.dp(1).toFloat(), glassTint)
+            background = context.glassFor(look, null, blurred)
             contentDescription = context.getString(R.string.close_menu)
             translationX = center.x - size / 2f
             translationY = center.y - size / 2f
@@ -173,7 +173,7 @@ class MenuView(
         val c = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             // The card holds text, so it gets a darker tint than the buttons
-            background = GlassDrawable(context.dp(26).toFloat(), context.dp(1).toFloat(), 0xB3101412.toInt())
+            background = context.glassFor(look, context.dp(26).toFloat(), blurred, holdsText = true)
             setPadding(pad, pad, pad, context.dp(16))
             isClickable = true // keep taps on the card from reaching the scrim
 

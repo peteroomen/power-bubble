@@ -1,5 +1,6 @@
 package io.github.peteroomen.powerbubble
 
+import android.accessibilityservice.AccessibilityButtonController
 import android.accessibilityservice.AccessibilityService
 import android.content.Intent
 import android.content.res.Configuration
@@ -20,12 +21,21 @@ class BubbleService : AccessibilityService() {
     private lateinit var prefs: Prefs
     private var overlay: BubbleOverlay? = null
 
+    // The accessibility shortcut (button, gesture or volume keys) shows and hides the bubble,
+    // rather than switching the whole service off
+    private val shortcut = object : AccessibilityButtonController.AccessibilityButtonCallback() {
+        override fun onClicked(controller: AccessibilityButtonController) = toggleBubble()
+    }
+
     override fun onServiceConnected() {
         instance = this
         prefs = Prefs(this)
         overlay = BubbleOverlay(this, prefs).also { if (prefs.visible) it.show() }
+        accessibilityButtonController.registerAccessibilityButtonCallback(shortcut)
         BubbleTileService.refresh(this)
     }
+
+    fun toggleBubble() = setBubbleVisible(!prefs.visible)
 
     override fun onUnbind(intent: Intent?): Boolean {
         tearDown()
@@ -38,6 +48,7 @@ class BubbleService : AccessibilityService() {
     }
 
     private fun tearDown() {
+        if (instance != null) accessibilityButtonController.unregisterAccessibilityButtonCallback(shortcut)
         overlay?.hide()
         overlay = null
         instance = null
@@ -61,6 +72,10 @@ class BubbleService : AccessibilityService() {
 
     fun onSettingsChanged() {
         overlay?.closeMenu()
+    }
+
+    fun onLookChanged() {
+        overlay?.applyLook()
     }
 
     /** Same as pressing the power button: biometric unlock keeps working. */

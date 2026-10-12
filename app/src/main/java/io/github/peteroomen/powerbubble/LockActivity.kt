@@ -11,6 +11,7 @@ import android.widget.Toast
  * - `io.github.peteroomen.powerbubble.action.SCREEN_OFF` turns the screen off (the default)
  * - `io.github.peteroomen.powerbubble.action.NOTIFICATIONS` opens the notification shade
  * - `io.github.peteroomen.powerbubble.action.SCREENSHOT` takes a screenshot without the bubble in it
+ * - `io.github.peteroomen.powerbubble.action.TOGGLE_BUBBLE` shows or hides the bubble
  */
 class LockActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,6 +24,8 @@ class LockActivity : Activity() {
             service.openNotifications()
         } else if (intent?.action == ACTION_SCREENSHOT) {
             service.screenshot()
+        } else if (intent?.action == ACTION_TOGGLE_BUBBLE) {
+            service.toggleBubble()
         } else {
             service.lock()
         }
@@ -32,5 +35,6 @@ class LockActivity : Activity() {
     private companion object {
         const val ACTION_NOTIFICATIONS = "io.github.peteroomen.powerbubble.action.NOTIFICATIONS"
         const val ACTION_SCREENSHOT = "io.github.peteroomen.powerbubble.action.SCREENSHOT"
+        const val ACTION_TOGGLE_BUBBLE = "io.github.peteroomen.powerbubble.action.TOGGLE_BUBBLE"
     }
 }

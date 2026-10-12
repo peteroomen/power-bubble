@@ -65,5 +65,38 @@
                 android:minHeight="48dp"
                 android:text="@string/tap_screen_off" />
         </RadioGroup>
+
+        <TextView style="@style/Body" android:layout_marginTop="12dp" android:text="@string/look_label" />
+        <RadioGroup
+            android:id="@+id/look"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <RadioButton
+                android:id="@+id/lookGlass"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="48dp"
+                android:text="@string/look_glass" />
+            <RadioButton
+                android:id="@+id/lookBlur"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="48dp"
+                android:text="@string/look_blur" />
+            <RadioButton
+                android:id="@+id/lookFlat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:minHeight="48dp"
+                android:text="@string/look_flat" />
+        </RadioGroup>
+        <TextView android:id="@+id/lookSummary" style="@style/Hint" />
+
+        <TextView style="@style/Heading" android:text="@string/bring_back" />
+        <TextView style="@style/Body" android:text="@string/bring_back_body" />
     </LinearLayout>
 </ScrollView>

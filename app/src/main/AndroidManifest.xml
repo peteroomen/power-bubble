@@ -38,6 +38,7 @@
                 <action android:name="io.github.peteroomen.powerbubble.action.SCREEN_OFF" />
                 <action android:name="io.github.peteroomen.powerbubble.action.NOTIFICATIONS" />
                 <action android:name="io.github.peteroomen.powerbubble.action.SCREENSHOT" />
+                <action android:name="io.github.peteroomen.powerbubble.action.TOGGLE_BUBBLE" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

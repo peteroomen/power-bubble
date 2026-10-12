@@ -15,6 +15,10 @@ class Prefs(context: Context) {
         get() = TapMode.entries.getOrElse(sp.getInt("tap_mode", 0)) { TapMode.MENU }
         set(value) = sp.edit().putInt("tap_mode", value.ordinal).apply()
 
+    var look: Look
+        get() = Look.entries.getOrElse(sp.getInt("look", Look.BLUR.ordinal)) { Look.BLUR }
+        set(value) = sp.edit().putInt("look", value.ordinal).apply()
+
     /** Which screen edge the bubble is snapped to. */
     var onLeft: Boolean
         get() = sp.getBoolean("on_left", false)

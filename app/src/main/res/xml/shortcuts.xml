@@ -3,6 +3,16 @@
     <shortcut
         android:enabled="true"
         android:icon="@mipmap/ic_launcher"
+        android:shortcutId="toggle_bubble"
+        android:shortcutShortLabel="@string/toggle_bubble">
+        <intent
+            android:action="io.github.peteroomen.powerbubble.action.TOGGLE_BUBBLE"
+            android:targetClass="io.github.peteroomen.powerbubble.LockActivity"
+            android:targetPackage="io.github.peteroomen.powerbubble" />
+    </shortcut>
+    <shortcut
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
         android:shortcutId="screen_off"
         android:shortcutShortLabel="@string/screen_off">
         <intent

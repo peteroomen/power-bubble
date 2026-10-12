@@ -2,6 +2,7 @@ package io.github.peteroomen.powerbubble
 
 import android.content.Context
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.LinearGradient
 import android.graphics.Paint
@@ -48,49 +49,75 @@ fun rounded(fill: Int, radius: Float) = GradientDrawable().apply {
 }
 
 /**
- * The launcher's liquid glass look, for views floating over other apps: a dark see-through tint, a
- * faint glow along the top, and a hairline rim that catches light at the top-left and bottom-right.
- * A circle when [cornerRadius] is null, otherwise a rounded rectangle.
+ * A glass surface for views floating over other apps, drawn over whatever real blur sits behind it
+ * (see [Look]): a see-through [tint], an optional glow along the top ([glowAlpha], [glowDepth] deep),
+ * an optional hairline rim catching light at the top-left and bottom-right ([rimWidth], brightened by
+ * [rimBoost]), and an optional soft light just inside the edge ([edgeGlow]). A circle when
+ * [cornerRadius] is null, otherwise a rounded rectangle.
  */
 class GlassDrawable(
     private val cornerRadius: Float?,
     private val rimWidth: Float,
-    tint: Int = Palette.GLASS_TINT,
+    private val tint: Int = Palette.GLASS_TINT,
+    private val glowAlpha: Float = 0.10f,
+    private val glowDepth: Float? = null,
+    private val rimBoost: Float = 1f,
+    private val edgeGlow: Float = 0f,
 ) : Drawable() {
 
-    private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = tint }
+    private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
     private val glow = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val edge = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val rim = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = rimWidth
     }
     private val rect = RectF()
+    private var alpha = 255
 
     override fun onBoundsChange(bounds: Rect) {
+        val depth = glowDepth ?: (bounds.height() * 0.35f)
         glow.shader = LinearGradient(
-            0f, bounds.top.toFloat(), 0f, bounds.top + bounds.height() * 0.35f,
-            0x1AFFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP,
+            0f, bounds.top.toFloat(), 0f, bounds.top + depth,
+            white(glowAlpha), white(0f), Shader.TileMode.CLAMP,
         )
         rim.shader = LinearGradient(
             bounds.left.toFloat(), bounds.top.toFloat(), bounds.right.toFloat(), bounds.bottom.toFloat(),
-            intArrayOf(0x8CFFFFFF.toInt(), 0x1FFFFFFF, 0x0FFFFFFF, 0x52FFFFFF),
+            intArrayOf(white(0.55f * rimBoost), white(0.12f * rimBoost), white(0.06f * rimBoost), white(0.32f * rimBoost)),
             floatArrayOf(0f, 0.3f, 0.7f, 1f),
             Shader.TileMode.CLAMP,
         )
+        edge.strokeWidth = minOf(bounds.width(), bounds.height()) * 0.16f
+        edge.color = white(edgeGlow)
+        edge.maskFilter = if (edgeGlow > 0f) android.graphics.BlurMaskFilter(edge.strokeWidth / 2, android.graphics.BlurMaskFilter.Blur.NORMAL) else null
     }
 
     override fun draw(canvas: Canvas) {
         rect.set(bounds)
         val r = cornerRadius ?: (minOf(rect.width(), rect.height()) / 2)
+        fill.color = tint
+        fill.alpha = Color.alpha(tint) * alpha / 255
+        glow.alpha = alpha
+        rim.alpha = alpha
+        edge.alpha = (255 * edgeGlow * alpha / 255).toInt()
         canvas.drawRoundRect(rect, r, r, fill)
-        canvas.drawRoundRect(rect, r, r, glow)
-        val half = rimWidth / 2
-        rect.inset(half, half)
-        canvas.drawRoundRect(rect, r - half, r - half, rim)
+        if (glowAlpha > 0f) canvas.drawRoundRect(rect, r, r, glow)
+        if (edgeGlow > 0f) {
+            canvas.save()
+            val path = android.graphics.Path().apply { addRoundRect(rect, r, r, android.graphics.Path.Direction.CW) }
+            canvas.clipPath(path)
+            canvas.drawRoundRect(rect, r, r, edge)
+            canvas.restore()
+        }
+        if (rimWidth > 0f) {
+            val half = rimWidth / 2
+            rect.inset(half, half)
+            canvas.drawRoundRect(rect, r - half, r - half, rim)
+        }
     }
 
     override fun setAlpha(alpha: Int) {
-        fill.alpha = alpha
+        this.alpha = alpha
         invalidateSelf()
     }
 
@@ -101,4 +128,6 @@ class GlassDrawable(
 
     @Deprecated("Deprecated in Java")
     override fun getOpacity() = PixelFormat.TRANSLUCENT
+
+    private fun white(a: Float) = Color.argb((a.coerceIn(0f, 1f) * 255).toInt(), 255, 255, 255)
 }
