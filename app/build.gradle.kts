@@ -13,8 +13,10 @@ android {
         applicationId = "io.github.peteroomen.powerbubble"
         minSdk = 28 // GLOBAL_ACTION_LOCK_SCREEN
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.1.0"
+        // CI numbers each build, so every release is newer than the last (local builds are 1)
+        val build = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull()
+        versionCode = (build ?: 0) + 1
+        versionName = "0.1.${build ?: 0}"
     }
 
     buildTypes {

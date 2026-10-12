@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # to publish releases
     env:
       DEBUG_KEYSTORE: ${{ secrets.DEBUG_KEYSTORE_BASE64 }}
     steps:
@@ -24,7 +26,19 @@ jobs:
         if: env.DEBUG_KEYSTORE != ''
         run: mkdir -p ~/.android && echo "$DEBUG_KEYSTORE" | base64 -d > ~/.android/debug.keystore
       - run: ./gradlew assembleDebug
+      - name: Name the APK after its version
+        run: cp app/build/outputs/apk/debug/app-debug.apk power-bubble-0.1.${{ github.run_number }}.apk
       - uses: actions/upload-artifact@v4
         with:
           name: power-bubble-debug
-          path: app/build/outputs/apk/debug/*.apk
+          path: power-bubble-*.apk
+      # Each push to main becomes a release, so Obtainium can offer it as an update. Only with the
+      # shared key: an APK signed with a throwaway key wouldn't install over the one on the phone.
+      - name: Publish release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && env.DEBUG_KEYSTORE != ''
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.1.${{ github.run_number }}
+          name: 0.1.${{ github.run_number }}
+          body: Built from ${{ github.sha }}.
+          files: power-bubble-0.1.${{ github.run_number }}.apk
