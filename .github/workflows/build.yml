@@ -2,10 +2,13 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, "build/**"]
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: power-bubble-build-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,7 +30,7 @@ jobs:
         run: |
           echo "$DEBUG_KEYSTORE" | base64 -d > "$RUNNER_TEMP/debug.keystore"
           echo "DEBUG_KEYSTORE_FILE=$RUNNER_TEMP/debug.keystore" >> "$GITHUB_ENV"
-      - run: ./gradlew assembleDebug
+      - run: ./gradlew assembleDebug lintDebug
       # Never publish an APK that wouldn't install over the one on the phone
       - name: Check the APK is signed with the shared key
         if: env.DEBUG_KEYSTORE != ''
