@@ -43,7 +43,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
 
     private val bubbleIcon = ImageView(service).apply {
         setImageResource(R.drawable.ic_power)
-        setColorFilter(Palette.INK)
+        setColorFilter(if (prefs.look == Look.NEUBRUTAL) BRUTAL_INK else Palette.INK)
     }
     private val bubble = makeBubble()
     private val params = overlayParams(size, size)
@@ -78,6 +78,8 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         closeMenu()
         bubble.setLook(prefs.look, null)
         dismiss.setLook(prefs.look, null)
+        bubbleIcon.setColorFilter(if (prefs.look == Look.NEUBRUTAL) BRUTAL_INK else Palette.INK)
+        (dismiss.getChildAt(0) as? ImageView)?.setColorFilter(if (prefs.look == Look.NEUBRUTAL) BRUTAL_INK else Palette.INK)
         dismissHot = false
         wake()
         scheduleFade()
@@ -349,7 +351,10 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     private fun setDismissHot(hot: Boolean) {
         if (hot == dismissHot) return
         dismissHot = hot
-        if (hot) dismiss.background = circle(0x59FF8566, Palette.DANGER, service.dp(2)) else dismiss.setLook(prefs.look, null)
+        if (hot) {
+            dismiss.background = if (prefs.look == Look.NEUBRUTAL) service.neubrutalFor(BrutalFill.PINK.color)
+                else circle(0x59FF8566, Palette.DANGER, service.dp(2))
+        } else dismiss.setLook(prefs.look, null)
         val scale = if (hot) 1.2f else 1f
         dismiss.animate().scaleX(scale).scaleY(scale).setDuration(150).start()
         if (hot) bubble.performHapticFeedback(HapticFeedbackConstants.VIRTUAL_KEY)
@@ -371,7 +376,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         addView(
             ImageView(service).apply {
                 setImageResource(R.drawable.ic_close)
-                setColorFilter(Palette.INK)
+                setColorFilter(if (prefs.look == Look.NEUBRUTAL) BRUTAL_INK else Palette.INK)
             },
             FrameLayout.LayoutParams(service.dp(22), service.dp(22), Gravity.CENTER),
         )

@@ -4,6 +4,11 @@ import android.content.Context
 
 enum class TapMode { MENU, SCREEN_OFF }
 
+/** Flat Loud Taxi fills, kept separately from existing glass preferences. */
+enum class BrutalFill(val color: Int) {
+    YELLOW(0xFFFFE600.toInt()), CYAN(0xFF00CBE5.toInt()), PINK(0xFFFF6395.toInt()), PAPER(0xFFFFFDF6.toInt()),
+}
+
 class Prefs(context: Context) {
     private val sp = context.getSharedPreferences("power_bubble", Context.MODE_PRIVATE)
 
@@ -18,6 +23,14 @@ class Prefs(context: Context) {
     var look: Look
         get() = Look.entries.getOrElse(sp.getInt("look", Look.BLUR.ordinal)) { Look.BLUR }
         set(value) = sp.edit().putInt("look", value.ordinal).apply()
+
+    var brutalFill: BrutalFill
+        get() = BrutalFill.entries.getOrElse(sp.getInt("brutal_fill", 0)) { BrutalFill.YELLOW }
+        set(value) = sp.edit().putInt("brutal_fill", value.ordinal).apply()
+
+    var brutalRounded: Boolean
+        get() = sp.getBoolean("brutal_rounded", true)
+        set(value) = sp.edit().putBoolean("brutal_rounded", value).apply()
 
     /** Which screen edge the bubble is snapped to. */
     var onLeft: Boolean

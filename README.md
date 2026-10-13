@@ -12,6 +12,8 @@ You can also switch tapping to turn the screen off straight away, with a long pr
 
 The bubble and its buttons use the same liquid glass look as the launcher, and opening the menu blurs the screen behind it on Android 12+ phones that support window blur.
 
+To match **Loud**, choose **Look → Neubrutal · match Loud** in Power Bubble. This optional look uses opaque yellow, cyan, pink or paper fills, dark ink outlines and hard offset shadows. Choose **Square Punch** or **Round Paper** corners. The bubble, dismiss target, menu and confirmation controls share the appearance. Glass, Blur and Flat keep their existing settings and behavior; Blur remains the default. Appearance is a local user setting and does not require another exported API.
+
 Drag the bubble anywhere and it snaps to the nearest edge. Drag it onto the ✕ to hide it, and bring it back from the **Power bubble** Quick Settings tile. There are also **Screen off** and **Screenshot** tiles, and long-press shortcuts for both on the app icon. The Screenshot tile closes the shade first so it isn't in the picture.
 
 Screenshots taken any other way (from the recent apps screen, say) will include the bubble. Android doesn't let apps hide their windows from those.

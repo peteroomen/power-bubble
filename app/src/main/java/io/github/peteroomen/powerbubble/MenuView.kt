@@ -49,6 +49,7 @@ class MenuView(
     private val radius = context.dp(108)
     private val items = mutableListOf<Item>()
     private var card: View? = null
+    private val ink: Int get() = if (look == Look.NEUBRUTAL) BRUTAL_INK else Palette.INK
 
     init {
         setBackgroundColor(if (blurred) Palette.SCRIM_LIGHT else Palette.SCRIM)
@@ -127,7 +128,7 @@ class MenuView(
                 ImageView(context).apply {
                     setImageResource(icon)
                     setColorFilter(
-                        when (style) {
+                        if (look == Look.NEUBRUTAL) BRUTAL_INK else when (style) {
                             Style.PRIMARY -> Palette.ACCENT
                             Style.DANGER -> Palette.DANGER
                             Style.NORMAL -> Palette.INK
@@ -158,7 +159,7 @@ class MenuView(
             addView(
                 ImageView(context).apply {
                     setImageResource(R.drawable.ic_power)
-                    setColorFilter(Palette.INK)
+                    setColorFilter(ink)
                     rotation = 90f
                 },
                 LayoutParams(context.dp(24), context.dp(24), Gravity.CENTER),
@@ -179,13 +180,13 @@ class MenuView(
 
             addView(TextView(context).apply {
                 setText(title)
-                setTextColor(Palette.INK)
+                setTextColor(ink)
                 textSize = 20f
             })
             addView(
                 TextView(context).apply {
                     setText(body)
-                    setTextColor(if (danger) Palette.DANGER else Palette.MUTED)
+                    setTextColor(if (look == Look.NEUBRUTAL) BRUTAL_INK else if (danger) Palette.DANGER else Palette.MUTED)
                     textSize = 14f
                 },
                 LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
@@ -224,11 +225,12 @@ class MenuView(
 
     private fun cardButton(text: Int, fill: Int, ink: Int, onClick: () -> Unit) = TextView(context).apply {
         setText(text)
-        setTextColor(ink)
+        setTextColor(if (look == Look.NEUBRUTAL) BRUTAL_INK else ink)
         textSize = 14f
         typeface = Typeface.DEFAULT_BOLD
         gravity = Gravity.CENTER
-        background = rounded(fill, context.dp(14).toFloat())
+        background = if (look == Look.NEUBRUTAL) context.neubrutalFor(if (fill == Palette.DANGER) BrutalFill.PINK.color else null)
+            else rounded(fill, context.dp(14).toFloat())
         minHeight = context.dp(48)
         isFocusable = true
         setOnClickListener { onClick() }

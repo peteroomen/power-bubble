@@ -18,7 +18,8 @@ import org.lsposed.hiddenapibypass.HiddenApiBypass
  * - [FLAT]: a plain see-through dark circle
  * Without blur, the glass looks fall back to the darker tint so the icons stay readable.
  */
-enum class Look { GLASS, BLUR, FLAT }
+// Append new values: existing users store the first three ordinals.
+enum class Look { GLASS, BLUR, FLAT, NEUBRUTAL }
 
 /** True if the phone will draw blurs behind windows right now (it's off in battery saver, for one). */
 fun Context.blurAvailable(): Boolean =
@@ -30,6 +31,7 @@ fun Context.glassFor(look: Look, cornerRadius: Float?, blurred: Boolean, holdsTe
     // Text needs more behind it than an icon does
     val heavy = if (holdsText) 0xB3101412.toInt() else Palette.GLASS_TINT
     return when {
+        look == Look.NEUBRUTAL -> neubrutalFor()
         look == Look.FLAT -> GlassDrawable(cornerRadius, 0f, heavy, glowAlpha = 0f)
         !blurred -> GlassDrawable(cornerRadius, rim, heavy)
         look == Look.BLUR -> GlassDrawable(
@@ -62,11 +64,14 @@ fun Context.menuBlurRadius(look: Look): Int? = when {
  * can't blur) the view gets the unblurred fallback.
  */
 fun View.setLook(look: Look, cornerRadius: Float?) {
+    // Unattached drag targets can retain a stale deferred blur listener after a settings change.
+    (getTag(R.id.look_attach_listener) as? View.OnAttachStateChangeListener)?.let { removeOnAttachStateChangeListener(it) }
+    setTag(R.id.look_attach_listener, null)
     background = context.glassFor(look, cornerRadius, blurred = false)
     val radius = when (look) {
         Look.BLUR -> context.dp(8)
         Look.GLASS -> context.dp(2)
-        Look.FLAT -> return
+        Look.FLAT, Look.NEUBRUTAL -> return
     }
     val apply = {
         val corner = cornerRadius ?: (minOf(width, height).takeIf { it > 0 } ?: layoutParams?.width ?: 0) / 2f
@@ -77,13 +82,16 @@ fun View.setLook(look: Look, cornerRadius: Float?) {
     if (isAttachedToWindow) {
         apply()
     } else {
-        addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+        val listener = object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(v: View) {
                 v.removeOnAttachStateChangeListener(this)
+                v.setTag(R.id.look_attach_listener, null)
                 apply()
             }
             override fun onViewDetachedFromWindow(v: View) = Unit
-        })
+        }
+        setTag(R.id.look_attach_listener, listener)
+        addOnAttachStateChangeListener(listener)
     }
 }
 

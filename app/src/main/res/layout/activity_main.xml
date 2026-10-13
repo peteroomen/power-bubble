@@ -71,30 +71,43 @@
             android:id="@+id/look"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="vertical">
             <RadioButton
                 android:id="@+id/lookGlass"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:minHeight="48dp"
                 android:text="@string/look_glass" />
             <RadioButton
                 android:id="@+id/lookBlur"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:minHeight="48dp"
                 android:text="@string/look_blur" />
             <RadioButton
                 android:id="@+id/lookFlat"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:minHeight="48dp"
                 android:text="@string/look_flat" />
+            <RadioButton android:id="@+id/lookNeubrutal" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/look_neubrutal" />
         </RadioGroup>
         <TextView android:id="@+id/lookSummary" style="@style/Hint" />
+
+        <LinearLayout android:id="@+id/brutalOptions" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <TextView style="@style/Body" android:text="@string/brutal_fill_label" />
+            <RadioGroup android:id="@+id/brutalFill" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <RadioButton android:id="@+id/fillYellow" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_yellow" />
+                <RadioButton android:id="@+id/fillCyan" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_cyan" />
+                <RadioButton android:id="@+id/fillPink" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_pink" />
+                <RadioButton android:id="@+id/fillPaper" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_paper" />
+            </RadioGroup>
+            <TextView style="@style/Body" android:text="@string/brutal_shape_label" />
+            <RadioGroup android:id="@+id/brutalShape" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <RadioButton android:id="@+id/shapeRounded" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/shape_rounded" />
+                <RadioButton android:id="@+id/shapeSquare" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/shape_square" />
+            </RadioGroup>
+        </LinearLayout>
 
         <TextView style="@style/Heading" android:text="@string/bring_back" />
         <TextView style="@style/Body" android:text="@string/bring_back_body" />

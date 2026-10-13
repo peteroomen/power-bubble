@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.view.View
 import android.widget.Button
 import android.widget.RadioGroup
 import android.widget.Switch
@@ -23,6 +24,9 @@ class MainActivity : Activity() {
     private lateinit var tapMode: RadioGroup
     private lateinit var look: RadioGroup
     private lateinit var lookSummary: TextView
+    private lateinit var brutalOptions: View
+    private lateinit var brutalFill: RadioGroup
+    private lateinit var brutalShape: RadioGroup
 
     private val permissionListener = Shizuku.OnRequestPermissionResultListener { _, _ -> runOnUiThread { refresh() } }
     private val binderReceived = Shizuku.OnBinderReceivedListener { runOnUiThread { refresh() } }
@@ -41,6 +45,9 @@ class MainActivity : Activity() {
         tapMode = findViewById(R.id.tapMode)
         look = findViewById(R.id.look)
         lookSummary = findViewById(R.id.lookSummary)
+        brutalOptions = findViewById(R.id.brutalOptions)
+        brutalFill = findViewById(R.id.brutalFill)
+        brutalShape = findViewById(R.id.brutalShape)
 
         openAccessibility.setOnClickListener {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
@@ -110,6 +117,7 @@ class MainActivity : Activity() {
                 Look.GLASS -> R.id.lookGlass
                 Look.BLUR -> R.id.lookBlur
                 Look.FLAT -> R.id.lookFlat
+                Look.NEUBRUTAL -> R.id.lookNeubrutal
             },
         )
         showLookSummary()
@@ -117,9 +125,33 @@ class MainActivity : Activity() {
             prefs.look = when (id) {
                 R.id.lookGlass -> Look.GLASS
                 R.id.lookFlat -> Look.FLAT
+                R.id.lookNeubrutal -> Look.NEUBRUTAL
                 else -> Look.BLUR
             }
             showLookSummary()
+            BubbleService.instance?.onLookChanged()
+        }
+
+        brutalFill.setOnCheckedChangeListener(null)
+        brutalFill.check(when (prefs.brutalFill) {
+            BrutalFill.YELLOW -> R.id.fillYellow
+            BrutalFill.CYAN -> R.id.fillCyan
+            BrutalFill.PINK -> R.id.fillPink
+            BrutalFill.PAPER -> R.id.fillPaper
+        })
+        brutalFill.setOnCheckedChangeListener { _, id ->
+            prefs.brutalFill = when (id) {
+                R.id.fillCyan -> BrutalFill.CYAN
+                R.id.fillPink -> BrutalFill.PINK
+                R.id.fillPaper -> BrutalFill.PAPER
+                else -> BrutalFill.YELLOW
+            }
+            BubbleService.instance?.onLookChanged()
+        }
+        brutalShape.setOnCheckedChangeListener(null)
+        brutalShape.check(if (prefs.brutalRounded) R.id.shapeRounded else R.id.shapeSquare)
+        brutalShape.setOnCheckedChangeListener { _, id ->
+            prefs.brutalRounded = id == R.id.shapeRounded
             BubbleService.instance?.onLookChanged()
         }
     }
@@ -130,9 +162,11 @@ class MainActivity : Activity() {
                 Look.GLASS -> R.string.look_glass_summary
                 Look.BLUR -> R.string.look_blur_summary
                 Look.FLAT -> R.string.look_flat_summary
+                Look.NEUBRUTAL -> R.string.look_neubrutal_summary
             },
         )
-        lookSummary.text = if (prefs.look != Look.FLAT && !blurAvailable()) summary + "\n\n" + getString(R.string.look_no_blur) else summary
+        brutalOptions.visibility = if (prefs.look == Look.NEUBRUTAL) View.VISIBLE else View.GONE
+        lookSummary.text = if (prefs.look in listOf(Look.GLASS, Look.BLUR) && !blurAvailable()) summary + "\n\n" + getString(R.string.look_no_blur) else summary
     }
 
     private fun onShizukuAction() {
