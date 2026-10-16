@@ -36,6 +36,11 @@ class Prefs(context: Context) {
         get() = Look.entries.getOrElse(sp.getInt("look", Look.BLUR.ordinal)) { Look.BLUR }
         set(value) = sp.edit().putInt("look", value.ordinal).apply()
 
+    /** Glass bends a capture of the screen under the bubble, like the launcher's clear glass (Android 13+). */
+    var trueLens: Boolean
+        get() = sp.getBoolean("true_lens", false)
+        set(value) = sp.edit().putBoolean("true_lens", value).apply()
+
     var brutalFill: BrutalFill
         get() = BrutalFill.entries.getOrElse(sp.getInt("brutal_fill", 0)) { BrutalFill.YELLOW }
         set(value) = sp.edit().putInt("brutal_fill", value.ordinal).apply()

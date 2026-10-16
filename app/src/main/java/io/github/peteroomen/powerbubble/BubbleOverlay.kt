@@ -5,6 +5,10 @@ import android.annotation.SuppressLint
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.PointF
+import android.graphics.Rect
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.os.PowerManager
 import android.graphics.drawable.LayerDrawable
 import android.hardware.display.DisplayManager
 import android.os.Build
@@ -57,6 +61,11 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     private var dismissHot = false
 
     private var menu: MenuView? = null
+    private var bubbleAlpha = 1f
+    private var touching = false
+    private var hiddenForScreenshot = false
+    private var lensBusy = false
+    private val lensRefresh = Runnable { captureLens() }
     private var snapAnim: ValueAnimator? = null
     private var fadeAnim: ValueAnimator? = null
     private val fade = Runnable {
@@ -73,6 +82,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
      * part of the way, so an idle bubble still frosts what's behind it.
      */
     private fun setBubbleAlpha(alpha: Float) {
+        bubbleAlpha = alpha
         val background = bubble.background
         val blur = (background as? LayerDrawable)?.findDrawableByLayerId(R.id.look_blur_layer)
         if (background is LayerDrawable && blur != null) {
@@ -96,6 +106,67 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         dismissHot = false
         wake()
         scheduleFade()
+        scheduleLens(LENS_SOON_MS)
+    }
+
+    /** True lens: Glass bending a capture of what's under the bubble (Android 13+, if switched on). */
+    private val lensOn get() = prefs.look == Look.GLASS && prefs.trueLens && Lens.supported() && !lensFailed
+    private var lensFailed = false
+
+    private fun scheduleLens(delay: Long) {
+        handler.removeCallbacks(lensRefresh)
+        if (lensOn && attached) handler.postDelayed(lensRefresh, delay)
+    }
+
+    /** Drops the lens for the plain glass, when the capture no longer matches where the bubble is. */
+    private fun dropLens() {
+        handler.removeCallbacks(lensRefresh)
+        if (bubble.background is LensDrawable) {
+            bubble.setLook(prefs.look, null)
+            setBubbleAlpha(bubbleAlpha)
+        }
+    }
+
+    /**
+     * Hides the bubble for a moment so it isn't in the capture, captures the screen, and turns the
+     * patch under the bubble into its lens. Repeats every few seconds so the lens follows the screen.
+     */
+    private fun captureLens() {
+        if (!lensOn || !attached) return
+        val busy = lensBusy || touching || menu != null || hiddenForScreenshot || snapAnim?.isRunning == true ||
+            bubble.visibility != View.VISIBLE || !service.getSystemService(PowerManager::class.java).isInteractive
+        if (busy) {
+            scheduleLens(LENS_REFRESH_MS)
+            return
+        }
+        lensBusy = true
+        bubble.visibility = View.INVISIBLE
+        handler.postDelayed({
+            val m = service.dp(LENS_MARGIN_DP)
+            val area = Rect(params.x - m, params.y - m, params.x + size + m, params.y + size + m)
+            val x = params.x
+            val y = params.y
+            Lens.capture(service, area) { patch ->
+                lensBusy = false
+                if (attached && menu == null && !hiddenForScreenshot) bubble.visibility = View.VISIBLE
+                // Skip a capture that's out of date: the bubble moved, or the look changed meanwhile
+                if (patch != null && lensOn && params.x == x && params.y == y && !touching) {
+                    // The shader compiles on the phone; if that fails, stay on plain glass and stop capturing
+                    val lens = try {
+                        LensDrawable(patch, service.dp(12).toFloat(), service.dp(6).toFloat()) { params.x to params.y }
+                    } catch (e: RuntimeException) {
+                        android.util.Log.w("PowerBubble", "Lens shader unavailable", e)
+                        lensFailed = true
+                        null
+                    }
+                    lens?.let {
+                        bubble.background = it
+                        setBubbleAlpha(bubbleAlpha)
+                    }
+                }
+                scheduleLens(LENS_REFRESH_MS)
+            }
+        }, LENS_HIDE_MS)
     }
 
     fun show() {
@@ -106,6 +177,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         wm.addView(bubble, params)
         attached = true
         scheduleFade()
+        scheduleLens(LENS_SOON_MS)
     }
 
     fun hide() {
@@ -113,6 +185,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         hideDismiss()
         snapAnim?.cancel()
         handler.removeCallbacks(fade)
+        handler.removeCallbacks(lensRefresh)
         if (attached) {
             wm.removeView(bubble)
             attached = false
@@ -126,6 +199,8 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         snapAnim?.cancel()
         placeFromPrefs()
         wm.updateViewLayout(bubble, params)
+        dropLens()
+        scheduleLens(LENS_SOON_MS)
     }
 
     fun closeMenu() {
@@ -134,6 +209,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         wm.removeView(m)
         bubble.visibility = View.VISIBLE
         wake()
+        scheduleLens(LENS_SOON_MS)
     }
 
     private fun openMenu() {
@@ -189,13 +265,17 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     fun takeScreenshot() {
         closeMenu()
         handler.removeCallbacks(fade)
+        handler.removeCallbacks(lensRefresh)
+        hiddenForScreenshot = true
         bubble.visibility = View.INVISIBLE
         handler.postDelayed({
             service.captureScreen()
             handler.postDelayed({
+                hiddenForScreenshot = false
                 bubble.visibility = View.VISIBLE
                 wake()
                 scheduleFade()
+                scheduleLens(LENS_SOON_MS)
             }, SCREENSHOT_RESTORE_MS)
         }, SCREENSHOT_DELAY_MS)
     }
@@ -228,6 +308,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         override fun onTouch(v: View, e: MotionEvent): Boolean {
             when (e.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
+                    touching = true
                     snapAnim?.cancel()
                     wake()
                     downX = e.rawX
@@ -245,12 +326,14 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
                     if (!dragging && hypot(dx, dy) > touchSlop) {
                         dragging = true
                         handler.removeCallbacks(longPress)
+                        dropLens()
                         showDismiss()
                     }
                     if (dragging) drag(startX + dx.roundToInt(), startY + dy.roundToInt())
                 }
 
                 MotionEvent.ACTION_UP -> {
+                    touching = false
                     handler.removeCallbacks(longPress)
                     if (dragging) {
                         val drop = dismissHot
@@ -270,6 +353,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
+                    touching = false
                     handler.removeCallbacks(longPress)
                     if (dragging) {
                         hideDismiss()
@@ -318,6 +402,9 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
                 params.y = (fromY + (toY - fromY) * f).roundToInt()
                 if (attached) wm.updateViewLayout(bubble, params)
             }
+            addListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) = scheduleLens(LENS_SOON_MS)
+            })
             start()
         }
     }
@@ -424,5 +511,11 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         // Long enough for the menu window to disappear before the capture, and for the capture to finish after
         const val SCREENSHOT_DELAY_MS = 300L
         const val SCREENSHOT_RESTORE_MS = 1200L
+        // True lens: how long the bubble hides for a capture, how soon to capture after it settles,
+        // how often to refresh, and how far around the bubble to keep for the bend at the rim
+        const val LENS_HIDE_MS = 50L
+        const val LENS_SOON_MS = 250L
+        const val LENS_REFRESH_MS = 2500L
+        const val LENS_MARGIN_DP = 16
     }
 }

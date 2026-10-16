@@ -14,6 +14,8 @@ The accessibility shortcut (the accessibility button in the navigation bar, the 
 
 The bubble and its buttons use the same liquid glass look as the launcher. On Android 12+ phones that support window blur, the bubble blurs whatever is behind it (about as much as the launcher's Blur panels in Blur, barely in Glass), and opening the menu blurs the whole screen behind it.
 
+On Android 13+, **Glass → True lens** bends what's under the bubble like the launcher's clear glass, using the launcher's own lens shader. Overlays can't see what's behind them, so with True lens on the service captures the screen every few seconds (hiding the bubble for a split second each time) and keeps only the small patch under the bubble, in memory. It lags behind moving content, and shows plain glass over apps that block screenshots. It's off by default.
+
 To match **Loud**, choose **Look → Neubrutal · match Loud** in Power Bubble. This optional look uses opaque yellow, cyan, pink or paper fills, dark ink outlines and hard offset shadows. The Pop Garden, Baby Blue and Rave combos, from Loud's bolder palettes, also colour the shadow (green with hot pink, baby blue with pink, lime with deep green). Choose **Square Punch** or **Round Paper** corners. The bubble, dismiss target, menu and confirmation controls share the appearance. The menu opens with Loud's stamp-and-punch motion: the centre button is stamped down and the actions punch out like slapped-on stickers. Glass, Blur and Flat keep their existing settings and behavior; Blur remains the default. Appearance is a local user setting and does not require another exported API.
 
 Drag the bubble anywhere and it snaps to the nearest edge. Drag it onto the ✕ to hide it, and bring it back from the **Power bubble** Quick Settings tile. There are also **Screen off** and **Screenshot** tiles, and long-press shortcuts for both on the app icon. The Screenshot tile closes the shade first so it isn't in the picture.
@@ -63,7 +65,7 @@ startActivity(Intent("io.github.peteroomen.powerbubble.action.SCREENSHOT"))
 | Show / hide | `BubbleTileService` Quick Settings tile |
 | Settings | `SharedPreferences` (`Prefs.kt`) |
 
-The accessibility service doesn't subscribe to any events and can't read screen content.
+The accessibility service doesn't subscribe to any events and can't read screen content. It can take screenshots, which it uses only when you switch on True lens, to capture the area under the bubble; those captures are never saved or sent.
 
 ## CI signing
 
