@@ -26,6 +26,8 @@ class MainActivity : Activity() {
     private lateinit var look: RadioGroup
     private lateinit var lookSummary: TextView
     private lateinit var brutalOptions: View
+    private lateinit var lensOptions: View
+    private lateinit var trueLens: Switch
     private lateinit var brutalFill: RadioGroup
     private lateinit var brutalShape: RadioGroup
 
@@ -48,6 +50,8 @@ class MainActivity : Activity() {
         look = findViewById(R.id.look)
         lookSummary = findViewById(R.id.lookSummary)
         brutalOptions = findViewById(R.id.brutalOptions)
+        lensOptions = findViewById(R.id.lensOptions)
+        trueLens = findViewById(R.id.trueLens)
         brutalFill = findViewById(R.id.brutalFill)
         brutalShape = findViewById(R.id.brutalShape)
 
@@ -119,6 +123,13 @@ class MainActivity : Activity() {
             prefs.shortcutAction = if (id == R.id.shortcutScreenOff) ShortcutAction.SCREEN_OFF else ShortcutAction.TOGGLE_BUBBLE
         }
 
+        trueLens.setOnCheckedChangeListener(null)
+        trueLens.isChecked = prefs.trueLens
+        trueLens.setOnCheckedChangeListener { _, checked ->
+            prefs.trueLens = checked
+            BubbleService.instance?.onLookChanged()
+        }
+
         look.setOnCheckedChangeListener(null)
         look.check(
             when (prefs.look) {
@@ -180,6 +191,7 @@ class MainActivity : Activity() {
             },
         )
         brutalOptions.visibility = if (prefs.look == Look.NEUBRUTAL) View.VISIBLE else View.GONE
+        lensOptions.visibility = if (prefs.look == Look.GLASS && Lens.supported()) View.VISIBLE else View.GONE
         lookSummary.text = if (prefs.look in listOf(Look.GLASS, Look.BLUR) && !blurAvailable()) summary + "\n\n" + getString(R.string.look_no_blur) else summary
     }
 

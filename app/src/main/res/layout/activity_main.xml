@@ -113,6 +113,17 @@
             <RadioButton android:id="@+id/lookNeubrutal" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/look_neubrutal" />
         </RadioGroup>
         <TextView android:id="@+id/lookSummary" style="@style/Hint" />
+        <LinearLayout android:id="@+id/lensOptions" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <Switch
+                android:id="@+id/trueLens"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:minHeight="48dp"
+                android:text="@string/true_lens"
+                android:textSize="15sp" />
+            <TextView style="@style/Hint" android:text="@string/true_lens_hint" />
+        </LinearLayout>
 
         <LinearLayout android:id="@+id/brutalOptions" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
             <TextView style="@style/Body" android:text="@string/brutal_fill_label" />

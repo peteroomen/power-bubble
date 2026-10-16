@@ -94,7 +94,8 @@ class GlassDrawable(
         )
         rim.shader = LinearGradient(
             bounds.left.toFloat(), bounds.top.toFloat(), bounds.right.toFloat(), bounds.bottom.toFloat(),
-            intArrayOf(white(0.55f * rimBoost), white(0.12f * rimBoost), white(0.06f * rimBoost), white(0.32f * rimBoost)),
+            // The launcher's rim (Theme.kt RimBrush)
+            intArrayOf(white(0.7f * rimBoost), white(0.16f * rimBoost), white(0.08f * rimBoost), white(0.45f * rimBoost)),
             floatArrayOf(0f, 0.3f, 0.7f, 1f),
             Shader.TileMode.CLAMP,
         )

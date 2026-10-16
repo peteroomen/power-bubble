@@ -19,7 +19,7 @@
     <string name="bubble_hidden_no_shortcut">Bubble hidden. Bring it back with the Power bubble Quick Settings tile, or by holding the Power Bubble app icon.</string>
     <string name="toggle_bubble">Show / hide bubble</string>
 
-    <string name="accessibility_description">Shows a floating button that turns the screen off and opens restart and shut down controls. It replaces a broken power button. Power Bubble doesn\'t read what\'s on your screen.</string>
+    <string name="accessibility_description">Shows a floating button that turns the screen off and opens restart and shut down controls. It replaces a broken power button. Power Bubble doesn\'t read what\'s on your screen. Only if you switch on True lens does it capture the small area under the bubble, to draw the glass; that stays in memory and is never saved or sent.</string>
     <string name="service_off_toast">Turn on Power Bubble in Accessibility settings first.</string>
 
     <string name="intro">A floating replacement for a broken power button.</string>
@@ -56,6 +56,8 @@
     <string name="look_flat">Flat</string>
     <string name="look_neubrutal">Neubrutal · match Loud</string>
     <string name="look_neubrutal_summary">Flat Loud colors with dark ink outlines and hard offset shadows. Choose square or rounded corners below. Gesture actions and power controls work as before.</string>
+    <string name="true_lens">True lens</string>
+    <string name="true_lens_hint">Bends what\'s under the bubble like the launcher\'s clear glass. To see it, Power Bubble captures the small area under the bubble every few seconds, hiding the bubble for a split second each time; the capture stays in memory and is never saved or sent. Over moving things like video or scrolling, the lens lags behind, and over apps that block screenshots it shows plain glass.</string>
     <string name="brutal_fill_label">Neubrutal fill</string>
     <string name="fill_yellow">Taxi yellow</string>
     <string name="fill_cyan">Cyan</string>
