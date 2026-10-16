@@ -1,7 +1,7 @@
 <resources>
     <style name="AppTheme" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:colorAccent">#174982</item>
-        <item name="android:colorPrimary">#174982</item>
+        <item name="android:colorAccent">#1F7A5C</item>
+        <item name="android:colorPrimary">#1F7A5C</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
 

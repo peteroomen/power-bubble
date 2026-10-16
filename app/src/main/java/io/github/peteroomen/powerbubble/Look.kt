@@ -29,20 +29,20 @@ fun Context.blurAvailable(): Boolean =
 fun Context.glassFor(look: Look, cornerRadius: Float?, blurred: Boolean, holdsText: Boolean = false): Drawable {
     val rim = dp(1).toFloat()
     // Text needs more behind it than an icon does
-    val heavy = if (holdsText) 0xB3000000.toInt() else Palette.GLASS_TINT
+    val heavy = if (holdsText) 0xB3101412.toInt() else Palette.GLASS_TINT
     return when {
         look == Look.NEUBRUTAL -> neubrutalFor()
         look == Look.FLAT -> GlassDrawable(cornerRadius, 0f, heavy, glowAlpha = 0f)
         !blurred -> GlassDrawable(cornerRadius, rim, heavy)
         look == Look.BLUR -> GlassDrawable(
             cornerRadius, rim,
-            tint = if (holdsText) 0x73000000 else 0x1F000000, // 12%, as tuned in the launcher
+            tint = if (holdsText) 0x73101412 else 0x1F000000, // 12%, as tuned in the launcher
             glowAlpha = 0.15f,
             glowDepth = dp(24).toFloat(),
         )
         else -> GlassDrawable(
             cornerRadius, rim,
-            tint = if (holdsText) 0x80000000.toInt() else 0x33000000,
+            tint = if (holdsText) 0x80101412.toInt() else 0x33000000,
             glowAlpha = 0f,
             rimBoost = 1.3f,
             edgeGlow = 0.08f,
