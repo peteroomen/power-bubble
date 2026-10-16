@@ -54,6 +54,10 @@ fun rounded(fill: Int, radius: Float) = GradientDrawable().apply {
  * an optional hairline rim catching light at the top-left and bottom-right ([rimWidth], brightened by
  * [rimBoost]), and an optional soft light just inside the edge ([edgeGlow]). A circle when
  * [cornerRadius] is null, otherwise a rounded rectangle.
+ *
+ * [lens] (0 to 1) adds what makes the launcher's clear glass read as a lens, without being able to
+ * bend what's behind: a band of shade just inside the edge where a lens would pull the picture in,
+ * a soft highlight at the top left, and thin warm and cool colour fringes along the rim.
  */
 class GlassDrawable(
     private val cornerRadius: Float?,
@@ -63,6 +67,7 @@ class GlassDrawable(
     private val glowDepth: Float? = null,
     private val rimBoost: Float = 1f,
     private val edgeGlow: Float = 0f,
+    private val lens: Float = 0f,
 ) : Drawable() {
 
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -72,7 +77,13 @@ class GlassDrawable(
         style = Paint.Style.STROKE
         strokeWidth = rimWidth
     }
+    private val shade = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val highlight = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val warmFringe = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val coolFringe = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val clip = android.graphics.Path()
     private val rect = RectF()
+    private val fringeRect = RectF()
     private var alpha = 255
 
     override fun onBoundsChange(bounds: Rect) {
@@ -90,6 +101,24 @@ class GlassDrawable(
         edge.strokeWidth = minOf(bounds.width(), bounds.height()) * 0.16f
         edge.color = white(edgeGlow)
         edge.maskFilter = if (edgeGlow > 0f) android.graphics.BlurMaskFilter(edge.strokeWidth / 2, android.graphics.BlurMaskFilter.Blur.NORMAL) else null
+
+        if (lens > 0f) {
+            val shortest = minOf(bounds.width(), bounds.height()).toFloat()
+            // Shade: a soft dark band just inside the rim, like the launcher's bevel pulling the picture in
+            shade.strokeWidth = shortest * 0.22f
+            shade.maskFilter = android.graphics.BlurMaskFilter(shade.strokeWidth / 2, android.graphics.BlurMaskFilter.Blur.NORMAL)
+            // Highlight: light caught at the top left, fading out before the middle
+            highlight.shader = android.graphics.RadialGradient(
+                bounds.left + bounds.width() * 0.32f, bounds.top + bounds.height() * 0.24f, shortest * 0.42f,
+                white(0.22f * lens), white(0f), Shader.TileMode.CLAMP,
+            )
+            // Fringes: hairlines a little inside the rim, split warm to the bottom right and cool to the top left
+            val fringeWidth = maxOf(1f, rimWidth)
+            warmFringe.strokeWidth = fringeWidth
+            coolFringe.strokeWidth = fringeWidth
+            warmFringe.color = Color.argb((0.30f * lens * 255).toInt(), 255, 170, 90)
+            coolFringe.color = Color.argb((0.30f * lens * 255).toInt(), 110, 190, 255)
+        }
     }
 
     override fun draw(canvas: Canvas) {
@@ -109,11 +138,39 @@ class GlassDrawable(
             canvas.drawRoundRect(rect, r, r, edge)
             canvas.restore()
         }
+        if (lens > 0f) drawLens(canvas, r)
         if (rimWidth > 0f) {
             val half = rimWidth / 2
             rect.inset(half, half)
             canvas.drawRoundRect(rect, r - half, r - half, rim)
         }
+    }
+
+    private fun drawLens(canvas: Canvas, r: Float) {
+        clip.reset()
+        clip.addRoundRect(rect, r, r, android.graphics.Path.Direction.CW)
+        canvas.save()
+        canvas.clipPath(clip)
+        shade.color = Color.argb((0.22f * lens * alpha).toInt(), 0, 0, 0)
+        canvas.drawRoundRect(rect, r, r, shade)
+        highlight.alpha = alpha
+        canvas.drawRect(rect, highlight)
+        val inset = maxOf(1f, rimWidth) * 2.5f
+        val shift = maxOf(1f, rimWidth) * 0.8f
+        fringeRect.set(rect)
+        fringeRect.inset(inset, inset)
+        val fringeR = (r - inset).coerceAtLeast(0f)
+        warmFringe.alpha = (0.30f * lens * alpha).toInt()
+        coolFringe.alpha = (0.30f * lens * alpha).toInt()
+        canvas.save()
+        canvas.translate(shift, shift)
+        canvas.drawArc(fringeRect, -10f, 120f, false, warmFringe)
+        canvas.restore()
+        canvas.save()
+        canvas.translate(-shift, -shift)
+        canvas.drawArc(fringeRect, 170f, 120f, false, coolFringe)
+        canvas.restore()
+        canvas.restore()
     }
 
     override fun setAlpha(alpha: Int) {
