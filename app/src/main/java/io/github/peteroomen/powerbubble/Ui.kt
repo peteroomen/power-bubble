@@ -14,8 +14,9 @@ import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import kotlin.math.roundToInt
 
+/** The niagara-like launcher's colours: its Blue accent and its neutral (untinted) greys and ink. */
 object Palette {
-    const val GLASS = 0xD918201D.toInt()
+    const val GLASS = 0xD91E2326.toInt()
     /** Glass over other apps: dark enough that white glyphs read on anything */
     const val GLASS_TINT = 0x6B000000
     /** Glass over the blurred screen behind the menu */
@@ -23,15 +24,16 @@ object Palette {
     /** Behind the menu when the screen behind is blurred */
     const val SCRIM_LIGHT = 0x33000000
     const val STROKE = 0x24FFFFFF
-    const val INK = 0xFFF3F5F4.toInt()
-    const val MUTED = 0xA6F3F5F4.toInt()
-    const val DARK = 0xFF0D1513.toInt()
-    const val ACCENT = 0xFF5EE0B0.toInt()
-    const val ACCENT_INK = 0xFF062619.toInt()
+    const val INK = 0xFFFAFAFA.toInt()
+    const val MUTED = 0xB8FAFAFA.toInt()
+    const val DARK = 0xFF121517.toInt()
+    /** The launcher's Blue accent (hue 212°) as it shows over light text */
+    const val ACCENT = 0xFF86B4EA.toInt()
+    const val ACCENT_INK = 0xFF0B223D.toInt()
     const val DANGER = 0xFFFF8566.toInt()
     const val DANGER_INK = 0xFF2A0B02.toInt()
-    const val SCRIM = 0x99050908.toInt()
-    const val CARD = 0xFF1B2420.toInt()
+    const val SCRIM = 0x99000000.toInt()
+    const val CARD = 0xFF1E2326.toInt()
     const val CARD_BUTTON = 0x14FFFFFF
 }
 
