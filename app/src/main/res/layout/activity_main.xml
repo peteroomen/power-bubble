@@ -66,6 +66,26 @@
                 android:text="@string/tap_screen_off" />
         </RadioGroup>
 
+        <TextView style="@style/Body" android:layout_marginTop="12dp" android:text="@string/shortcut_label" />
+        <RadioGroup
+            android:id="@+id/shortcutAction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RadioButton
+                android:id="@+id/shortcutToggle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/shortcut_toggle" />
+            <RadioButton
+                android:id="@+id/shortcutScreenOff"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/shortcut_screen_off" />
+        </RadioGroup>
+        <TextView style="@style/Hint" android:text="@string/shortcut_hint" />
+
         <TextView style="@style/Body" android:layout_marginTop="12dp" android:text="@string/look_label" />
         <RadioGroup
             android:id="@+id/look"

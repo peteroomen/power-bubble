@@ -4,6 +4,9 @@ import android.content.Context
 
 enum class TapMode { MENU, SCREEN_OFF }
 
+/** What the accessibility shortcut (button, gesture or volume keys) does. */
+enum class ShortcutAction { TOGGLE_BUBBLE, SCREEN_OFF }
+
 /**
  * Flat Loud fills, kept separately from existing glass preferences. The combos borrow Loud's bolder
  * palettes and colour the hard shadow too. Append new values: the preference stores the ordinal.
@@ -24,6 +27,10 @@ class Prefs(context: Context) {
     var tapMode: TapMode
         get() = TapMode.entries.getOrElse(sp.getInt("tap_mode", 0)) { TapMode.MENU }
         set(value) = sp.edit().putInt("tap_mode", value.ordinal).apply()
+
+    var shortcutAction: ShortcutAction
+        get() = ShortcutAction.entries.getOrElse(sp.getInt("shortcut_action", 0)) { ShortcutAction.TOGGLE_BUBBLE }
+        set(value) = sp.edit().putInt("shortcut_action", value.ordinal).apply()
 
     var look: Look
         get() = Look.entries.getOrElse(sp.getInt("look", Look.BLUR.ordinal)) { Look.BLUR }

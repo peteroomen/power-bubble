@@ -21,10 +21,18 @@ class BubbleService : AccessibilityService() {
     private lateinit var prefs: Prefs
     private var overlay: BubbleOverlay? = null
 
-    // The accessibility shortcut (button, gesture or volume keys) shows and hides the bubble,
-    // rather than switching the whole service off
+    // The accessibility shortcut (button, gesture or volume keys) shows and hides the bubble or turns
+    // the screen off, rather than switching the whole service off
     private val shortcut = object : AccessibilityButtonController.AccessibilityButtonCallback() {
-        override fun onClicked(controller: AccessibilityButtonController) = toggleBubble()
+        override fun onClicked(controller: AccessibilityButtonController) {
+            when (prefs.shortcutAction) {
+                ShortcutAction.TOGGLE_BUBBLE -> toggleBubble()
+                ShortcutAction.SCREEN_OFF -> {
+                    overlay?.closeMenu()
+                    lock()
+                }
+            }
+        }
     }
 
     override fun onServiceConnected() {
