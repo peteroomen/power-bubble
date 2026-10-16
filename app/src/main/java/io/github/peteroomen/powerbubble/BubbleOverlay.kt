@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.PointF
+import android.graphics.drawable.LayerDrawable
 import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Handler
@@ -67,9 +68,21 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         }
     }
 
-    /** Fades the bubble's glass, blur and icon together (a real blur ignores the view's own alpha). */
+    /**
+     * Fades the bubble's glass and icon (a real blur ignores the view's own alpha). The blur only fades
+     * part of the way, so an idle bubble still frosts what's behind it.
+     */
     private fun setBubbleAlpha(alpha: Float) {
-        bubble.background?.alpha = (alpha * 255).roundToInt()
+        val background = bubble.background
+        val blur = (background as? LayerDrawable)?.findDrawableByLayerId(R.id.look_blur_layer)
+        if (background is LayerDrawable && blur != null) {
+            for (i in 0 until background.numberOfLayers) {
+                val layer = background.getDrawable(i)
+                layer.alpha = ((if (layer === blur) maxOf(alpha, IDLE_BLUR_ALPHA) else alpha) * 255).roundToInt()
+            }
+        } else {
+            background?.alpha = (alpha * 255).roundToInt()
+        }
         bubbleIcon.alpha = alpha
     }
 
@@ -244,7 +257,9 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
                         hideDismiss()
                         if (drop) {
                             service.setBubbleVisible(false)
-                            Toast.makeText(service, R.string.bubble_hidden, Toast.LENGTH_LONG).show()
+                            val hint = if (prefs.shortcutAction == ShortcutAction.TOGGLE_BUBBLE) R.string.bubble_hidden
+                                else R.string.bubble_hidden_no_shortcut
+                            Toast.makeText(service, hint, Toast.LENGTH_LONG).show()
                         } else {
                             snapToEdge()
                         }
@@ -404,6 +419,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
 
     private companion object {
         const val IDLE_ALPHA = 0.45f
+        const val IDLE_BLUR_ALPHA = 0.85f
         const val IDLE_DELAY_MS = 2600L
         // Long enough for the menu window to disappear before the capture, and for the capture to finish after
         const val SCREENSHOT_DELAY_MS = 300L

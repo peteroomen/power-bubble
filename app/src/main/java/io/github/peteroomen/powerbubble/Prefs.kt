@@ -4,6 +4,9 @@ import android.content.Context
 
 enum class TapMode { MENU, SCREEN_OFF }
 
+/** What the accessibility shortcut (button, gesture or volume keys) does. */
+enum class ShortcutAction { TOGGLE_BUBBLE, SCREEN_OFF }
+
 /** Flat Loud Taxi fills, kept separately from existing glass preferences. */
 enum class BrutalFill(val color: Int) {
     YELLOW(0xFFFFE600.toInt()), CYAN(0xFF00CBE5.toInt()), PINK(0xFFFF6395.toInt()), PAPER(0xFFFFFDF6.toInt()),
@@ -19,6 +22,10 @@ class Prefs(context: Context) {
     var tapMode: TapMode
         get() = TapMode.entries.getOrElse(sp.getInt("tap_mode", 0)) { TapMode.MENU }
         set(value) = sp.edit().putInt("tap_mode", value.ordinal).apply()
+
+    var shortcutAction: ShortcutAction
+        get() = ShortcutAction.entries.getOrElse(sp.getInt("shortcut_action", 0)) { ShortcutAction.TOGGLE_BUBBLE }
+        set(value) = sp.edit().putInt("shortcut_action", value.ordinal).apply()
 
     var look: Look
         get() = Look.entries.getOrElse(sp.getInt("look", Look.BLUR.ordinal)) { Look.BLUR }

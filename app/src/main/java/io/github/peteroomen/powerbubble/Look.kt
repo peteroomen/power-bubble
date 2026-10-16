@@ -13,8 +13,8 @@ import org.lsposed.hiddenapibypass.HiddenApiBypass
  * The three looks, matching the launcher's Panels setting. Over other apps the bubble can't see
  * what's behind it, so Glass can't bend it like the launcher's lens; instead both glass looks use
  * the system's own blur behind the bubble (Android 12+, where the phone allows it):
- * - [GLASS]: barely blurred, a light tint and a brighter lit rim, so it reads as clear glass
- * - [BLUR]: blurred under a light tint, with a faint glow along the top and a hairline rim
+ * - [GLASS]: lightly blurred, a light tint and a brighter lit rim, so it reads as frosted clear glass
+ * - [BLUR]: heavily blurred under a light tint, with a faint glow along the top and a hairline rim
  * - [FLAT]: a plain see-through dark circle
  * Without blur, the glass looks fall back to the darker tint so the icons stay readable.
  */
@@ -68,15 +68,18 @@ fun View.setLook(look: Look, cornerRadius: Float?) {
     (getTag(R.id.look_attach_listener) as? View.OnAttachStateChangeListener)?.let { removeOnAttachStateChangeListener(it) }
     setTag(R.id.look_attach_listener, null)
     background = context.glassFor(look, cornerRadius, blurred = false)
+    // Strong enough to read as blur on a 52dp bubble, which only ever covers a little of the screen
     val radius = when (look) {
-        Look.BLUR -> context.dp(8)
-        Look.GLASS -> context.dp(2)
+        Look.BLUR -> context.dp(24)
+        Look.GLASS -> context.dp(10)
         Look.FLAT, Look.NEUBRUTAL -> return
     }
     val apply = {
         val corner = cornerRadius ?: (minOf(width, height).takeIf { it > 0 } ?: layoutParams?.width ?: 0) / 2f
         BackgroundBlur.create(this, radius, corner)?.let { blur ->
-            background = LayerDrawable(arrayOf(blur, context.glassFor(look, cornerRadius, blurred = true)))
+            background = LayerDrawable(arrayOf(blur, context.glassFor(look, cornerRadius, blurred = true))).apply {
+                setId(0, R.id.look_blur_layer)
+            }
         }
     }
     if (isAttachedToWindow) {

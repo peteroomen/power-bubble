@@ -10,7 +10,9 @@ A small bubble sits on the edge of the screen above every app. Tap it and four c
 
 You can also switch tapping to turn the screen off straight away, with a long press for the menu.
 
-The bubble and its buttons use the same liquid glass look as the launcher, and opening the menu blurs the screen behind it on Android 12+ phones that support window blur.
+The accessibility shortcut (the accessibility button in the navigation bar, the accessibility gesture or the volume-key shortcut) shows and hides the bubble by default. Under **When I use the accessibility shortcut**, you can set it to turn the screen off instead, so the button works as a power key even with the bubble hidden.
+
+The bubble and its buttons use the same liquid glass look as the launcher. On Android 12+ phones that support window blur, the bubble blurs whatever is behind it (strongly in Blur, lightly in Glass), and opening the menu blurs the whole screen behind it.
 
 To match **Loud**, choose **Look → Neubrutal · match Loud** in Power Bubble. This optional look uses opaque yellow, cyan, pink or paper fills, dark ink outlines and hard offset shadows. Choose **Square Punch** or **Round Paper** corners. The bubble, dismiss target, menu and confirmation controls share the appearance. Glass, Blur and Flat keep their existing settings and behavior; Blur remains the default. Appearance is a local user setting and does not require another exported API.
 

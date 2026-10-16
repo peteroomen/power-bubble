@@ -22,6 +22,7 @@ class MainActivity : Activity() {
     private lateinit var shizukuAction: Button
     private lateinit var showBubble: Switch
     private lateinit var tapMode: RadioGroup
+    private lateinit var shortcutAction: RadioGroup
     private lateinit var look: RadioGroup
     private lateinit var lookSummary: TextView
     private lateinit var brutalOptions: View
@@ -43,6 +44,7 @@ class MainActivity : Activity() {
         shizukuAction = findViewById(R.id.shizukuAction)
         showBubble = findViewById(R.id.showBubble)
         tapMode = findViewById(R.id.tapMode)
+        shortcutAction = findViewById(R.id.shortcutAction)
         look = findViewById(R.id.look)
         lookSummary = findViewById(R.id.lookSummary)
         brutalOptions = findViewById(R.id.brutalOptions)
@@ -109,6 +111,12 @@ class MainActivity : Activity() {
         tapMode.setOnCheckedChangeListener { _, id ->
             prefs.tapMode = if (id == R.id.tapMenu) TapMode.MENU else TapMode.SCREEN_OFF
             BubbleService.instance?.onSettingsChanged()
+        }
+
+        shortcutAction.setOnCheckedChangeListener(null)
+        shortcutAction.check(if (prefs.shortcutAction == ShortcutAction.SCREEN_OFF) R.id.shortcutScreenOff else R.id.shortcutToggle)
+        shortcutAction.setOnCheckedChangeListener { _, id ->
+            prefs.shortcutAction = if (id == R.id.shortcutScreenOff) ShortcutAction.SCREEN_OFF else ShortcutAction.TOGGLE_BUBBLE
         }
 
         look.setOnCheckedChangeListener(null)

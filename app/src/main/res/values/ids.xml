@@ -1,3 +1,4 @@
 <resources>
     <item name="look_attach_listener" type="id" />
+    <item name="look_blur_layer" type="id" />
 </resources>
