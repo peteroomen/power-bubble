@@ -49,12 +49,14 @@ class MenuView(
     private val radius = context.dp(108)
     private val items = mutableListOf<Item>()
     private var card: View? = null
+    private lateinit var close: View
     private val ink: Int get() = if (look == Look.NEUBRUTAL) BRUTAL_INK else Palette.INK
 
     init {
         setBackgroundColor(if (blurred) Palette.SCRIM_LIGHT else Palette.SCRIM)
         setOnClickListener { if (card != null) hideCard() else listener.onDismiss() }
-        addView(closeButton())
+        close = closeButton()
+        addView(close)
 
         val targets = targets()
         addItem(R.drawable.ic_screenshot, R.string.screenshot, Style.NORMAL, targets[0]) { listener.onScreenshot() }
@@ -78,6 +80,7 @@ class MenuView(
     fun animateIn() {
         alpha = 0f
         animate().alpha(1f).setDuration(150).start()
+        if (look == Look.NEUBRUTAL) return loudIn()
         items.forEachIndexed { i, item ->
             item.view.apply {
                 translationX = center.x - itemWidth / 2f
@@ -92,6 +95,43 @@ class MenuView(
                     .setStartDelay(i * 35L)
                     .setDuration(300)
                     .setInterpolator(OvershootInterpolator(1.2f))
+                    .start()
+            }
+        }
+    }
+
+    /**
+     * Neubrutal matches Loud's pie: the centre button is stamped down (lands oversized and tilted,
+     * bounces to size) and the actions punch straight out one after another with a big overshoot,
+     * slapped on like stickers from a tilt. Nothing fades in.
+     */
+    private fun loudIn() {
+        close.apply {
+            scaleX = 1.3f
+            scaleY = 1.3f
+            rotation = LOUD_TILT / 2
+            animate().scaleX(1f).scaleY(1f).rotation(0f)
+                .setDuration(260)
+                .setInterpolator(OvershootInterpolator(3f))
+                .start()
+        }
+        items.forEachIndexed { i, item ->
+            item.view.apply {
+                translationX = center.x - itemWidth / 2f
+                translationY = center.y - item.circleSize / 2f
+                scaleX = 0.6f
+                scaleY = 0.6f
+                rotation = LOUD_TILT
+                alpha = 1f
+                visibility = INVISIBLE
+                animate()
+                    .translationX(item.target.x - itemWidth / 2f)
+                    .translationY(item.target.y - item.circleSize / 2f)
+                    .scaleX(1f).scaleY(1f).rotation(0f)
+                    .setStartDelay(60L + i * 55L)
+                    .setDuration(320)
+                    .setInterpolator(OvershootInterpolator(2.6f))
+                    .withStartAction { visibility = VISIBLE }
                     .start()
             }
         }
@@ -213,7 +253,13 @@ class MenuView(
             setMargins(side, 0, side, context.dp(56))
         })
         c.translationY = context.dp(240).toFloat()
-        c.animate().translationY(0f).setDuration(260).start()
+        if (look == Look.NEUBRUTAL) {
+            // Slammed in from below and straightened, like the menu's stickers
+            c.rotation = LOUD_TILT / 3
+            c.animate().translationY(0f).rotation(0f).setDuration(320).setInterpolator(OvershootInterpolator(1.8f)).start()
+        } else {
+            c.animate().translationY(0f).setDuration(260).start()
+        }
         card = c
     }
 
@@ -234,6 +280,10 @@ class MenuView(
         minHeight = context.dp(48)
         isFocusable = true
         setOnClickListener { onClick() }
+    }
+
+    private companion object {
+        const val LOUD_TILT = -18f
     }
 
     private fun buttonParams(start: Int = 0, end: Int = 0) =
