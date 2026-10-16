@@ -12,7 +12,7 @@ You can also switch tapping to turn the screen off straight away, with a long pr
 
 The accessibility shortcut (the accessibility button in the navigation bar, the accessibility gesture or the volume-key shortcut) shows and hides the bubble by default. Under **When I use the accessibility shortcut**, you can set it to turn the screen off instead, so the button works as a power key even with the bubble hidden.
 
-The bubble and its buttons use the same liquid glass look as the launcher. On Android 12+ phones that support window blur, the bubble blurs whatever is behind it (strongly in Blur, lightly in Glass), and opening the menu blurs the whole screen behind it.
+The bubble and its buttons use the same liquid glass look as the launcher. On Android 12+ phones that support window blur, the bubble blurs whatever is behind it (about as much as the launcher's Blur panels in Blur, barely in Glass), and opening the menu blurs the whole screen behind it.
 
 To match **Loud**, choose **Look → Neubrutal · match Loud** in Power Bubble. This optional look uses opaque yellow, cyan, pink or paper fills, dark ink outlines and hard offset shadows. The Pop Garden, Baby Blue and Rave combos, from Loud's bolder palettes, also colour the shadow (green with hot pink, baby blue with pink, lime with deep green). Choose **Square Punch** or **Round Paper** corners. The bubble, dismiss target, menu and confirmation controls share the appearance. The menu opens with Loud's stamp-and-punch motion: the centre button is stamped down and the actions punch out like slapped-on stickers. Glass, Blur and Flat keep their existing settings and behavior; Blur remains the default. Appearance is a local user setting and does not require another exported API.
 

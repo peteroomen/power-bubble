@@ -13,8 +13,9 @@ import org.lsposed.hiddenapibypass.HiddenApiBypass
  * The three looks, matching the launcher's Panels setting. Over other apps the bubble can't see
  * what's behind it, so Glass can't bend it like the launcher's lens; instead both glass looks use
  * the system's own blur behind the bubble (Android 12+, where the phone allows it):
- * - [GLASS]: lightly blurred, a light tint and a brighter lit rim, so it reads as frosted clear glass
- * - [BLUR]: heavily blurred under a light tint, with a faint glow along the top and a hairline rim
+ * - [GLASS]: barely blurred, a light tint, a brighter lit rim and lens cues (edge shade, a highlight,
+ *   colour fringes) standing in for the launcher's refraction
+ * - [BLUR]: blurred under a light tint, with a faint glow along the top and a hairline rim
  * - [FLAT]: a plain see-through dark circle
  * Without blur, the glass looks fall back to the darker tint so the icons stay readable.
  */
@@ -46,6 +47,8 @@ fun Context.glassFor(look: Look, cornerRadius: Float?, blurred: Boolean, holdsTe
             glowAlpha = 0f,
             rimBoost = 1.3f,
             edgeGlow = 0.08f,
+            // The lens cues are drawn for circles; the rounded confirmation card keeps plain glass
+            lens = if (holdsText) 0f else 1f,
         )
     }
 }
@@ -68,10 +71,10 @@ fun View.setLook(look: Look, cornerRadius: Float?) {
     (getTag(R.id.look_attach_listener) as? View.OnAttachStateChangeListener)?.let { removeOnAttachStateChangeListener(it) }
     setTag(R.id.look_attach_listener, null)
     background = context.glassFor(look, cornerRadius, blurred = false)
-    // Strong enough to read as blur on a 52dp bubble, which only ever covers a little of the screen
+    // Close to the launcher's panels: about 4dp of blur on its frosted glass, barely any on its clear glass
     val radius = when (look) {
-        Look.BLUR -> context.dp(24)
-        Look.GLASS -> context.dp(10)
+        Look.BLUR -> context.dp(8)
+        Look.GLASS -> context.dp(3)
         Look.FLAT, Look.NEUBRUTAL -> return
     }
     val apply = {
