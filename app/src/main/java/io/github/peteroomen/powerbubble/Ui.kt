@@ -68,6 +68,7 @@ class GlassDrawable(
     private val rimBoost: Float = 1f,
     private val edgeGlow: Float = 0f,
     private val lens: Float = 0f,
+    private val iconShade: Float = 0f,
 ) : Drawable() {
 
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -78,6 +79,7 @@ class GlassDrawable(
         strokeWidth = rimWidth
     }
     private val shade = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
+    private val behindIcon = Paint(Paint.ANTI_ALIAS_FLAG)
     private val highlight = Paint(Paint.ANTI_ALIAS_FLAG)
     private val warmFringe = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val coolFringe = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
@@ -99,6 +101,7 @@ class GlassDrawable(
             floatArrayOf(0f, 0.3f, 0.7f, 1f),
             Shader.TileMode.CLAMP,
         )
+        if (iconShade > 0f) behindIcon.shader = iconShadeFor(bounds, iconShade)
         edge.strokeWidth = minOf(bounds.width(), bounds.height()) * 0.16f
         edge.color = white(edgeGlow)
         edge.maskFilter = if (edgeGlow > 0f) android.graphics.BlurMaskFilter(edge.strokeWidth / 2, android.graphics.BlurMaskFilter.Blur.NORMAL) else null
@@ -131,6 +134,10 @@ class GlassDrawable(
         rim.alpha = alpha
         edge.alpha = (255 * edgeGlow * alpha / 255).toInt()
         canvas.drawRoundRect(rect, r, r, fill)
+        if (iconShade > 0f) {
+            behindIcon.alpha = alpha
+            canvas.drawRoundRect(rect, r, r, behindIcon)
+        }
         if (glowAlpha > 0f) canvas.drawRoundRect(rect, r, r, glow)
         if (edgeGlow > 0f) {
             canvas.save()
@@ -189,3 +196,14 @@ class GlassDrawable(
 
     private fun white(a: Float) = Color.argb((a.coerceIn(0f, 1f) * 255).toInt(), 255, 255, 255)
 }
+
+/**
+ * A soft dark patch behind the icon, so it reads over a busy blur: [strength] black in the middle,
+ * gone well before the rim, so the glass edge stays clear.
+ */
+fun iconShadeFor(bounds: Rect, strength: Float): Shader = android.graphics.RadialGradient(
+    bounds.exactCenterX(), bounds.exactCenterY(), minOf(bounds.width(), bounds.height()) * 0.36f,
+    intArrayOf(Color.argb((strength * 255).toInt(), 0, 0, 0), Color.argb((strength * 0.6f * 255).toInt(), 0, 0, 0), Color.TRANSPARENT),
+    floatArrayOf(0f, 0.5f, 1f),
+    Shader.TileMode.CLAMP,
+)

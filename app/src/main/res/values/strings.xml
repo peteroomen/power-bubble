@@ -57,7 +57,7 @@
     <string name="look_neubrutal">Neubrutal · match Loud</string>
     <string name="look_neubrutal_summary">Flat Loud colors with dark ink outlines and hard offset shadows. Choose square or rounded corners below. Gesture actions and power controls work as before.</string>
     <string name="true_lens">True lens</string>
-    <string name="true_lens_hint">Bends what\'s under the bubble like the launcher\'s clear glass. To see it, Power Bubble captures the small area under the bubble every few seconds, hiding the bubble for a split second each time; the capture stays in memory and is never saved or sent. Over moving things like video or scrolling, the lens lags behind, and over apps that block screenshots it shows plain glass.</string>
+    <string name="true_lens_hint">Bends what\'s under the bubble like the launcher\'s clear glass. To see it, Power Bubble captures the small area under the bubble whenever the screen settles after a change, hiding the bubble for a split second; the capture stays in memory and is never saved or sent. While things move it shows a live blur instead, and over apps that block screenshots it shows plain glass.</string>
     <string name="brutal_fill_label">Neubrutal fill</string>
     <string name="fill_yellow">Taxi yellow</string>
     <string name="fill_cyan">Cyan</string>

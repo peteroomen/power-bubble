@@ -25,17 +25,22 @@ import android.graphics.drawable.Drawable
 object Lens {
     fun supported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
-    /** A copy of what's behind [area] (screen pixels), halved, as the launcher's lightly softened wallpaper copy. */
+    /**
+     * A copy of the whole screen as it was with the bubble hidden, at half size (like the launcher's
+     * lightly softened wallpaper copy). The whole screen, so the lens can follow the bubble as it
+     * moves without capturing again.
+     */
     class Patch(val bitmap: Bitmap, val area: Rect) {
         val scale get() = area.width().toFloat() / bitmap.width
     }
 
     /**
-     * Captures the screen and returns the patch under [area] to [done] on the main thread, or null
-     * if the phone refused (a secure app on screen, or too soon after the last capture).
+     * Captures the screen and returns it to [done] on the main thread, or null
+     * if the phone refused: a secure app on screen, or [tooSoon] after the last capture (Android
+     * allows about three a second).
      */
     @TargetApi(Build.VERSION_CODES.TIRAMISU)
-    fun capture(service: AccessibilityService, area: Rect, done: (Patch?) -> Unit) {
+    fun capture(service: AccessibilityService, done: (patch: Patch?, tooSoon: Boolean) -> Unit) {
         service.takeScreenshot(
             Display.DEFAULT_DISPLAY,
             service.mainExecutor,
@@ -46,28 +51,25 @@ object Lens {
                         val shot = Bitmap.wrapHardwareBuffer(buffer, result.colorSpace)
                         val full = shot?.copy(Bitmap.Config.ARGB_8888, false)
                         shot?.recycle()
-                        full?.let { crop(it, area).also { full.recycle() } }
+                        full?.let { halve(it).also { full.recycle() } }
                     } catch (e: RuntimeException) {
                         Log.w("PowerBubble", "Lens capture unreadable", e)
                         null
                     } finally {
                         buffer.close()
                     }
-                    done(patch)
+                    done(patch, false)
                 }
 
-                override fun onFailure(errorCode: Int) = done(null)
+                override fun onFailure(errorCode: Int) =
+                    done(null, errorCode == AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT)
             },
         )
     }
 
-    private fun crop(full: Bitmap, area: Rect): Patch? {
-        val clipped = Rect(area)
-        if (!clipped.intersect(0, 0, full.width, full.height) || clipped.width() < 2 || clipped.height() < 2) return null
-        val piece = Bitmap.createBitmap(full, clipped.left, clipped.top, clipped.width(), clipped.height())
-        val half = Bitmap.createScaledBitmap(piece, clipped.width() / 2, clipped.height() / 2, true)
-        if (half !== piece) piece.recycle()
-        return Patch(half, clipped)
+    private fun halve(full: Bitmap): Patch? {
+        if (full.width < 2 || full.height < 2) return null
+        return Patch(Bitmap.createScaledBitmap(full, full.width / 2, full.height / 2, true), Rect(0, 0, full.width, full.height))
     }
 }
 
@@ -94,6 +96,7 @@ class LensDrawable(
     }
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = this@LensDrawable.shader }
     private val tint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val behindIcon = Paint(Paint.ANTI_ALIAS_FLAG)
     private val rect = RectF()
     private var alpha = 255
 
@@ -121,7 +124,13 @@ class LensDrawable(
         tint.color = 0x33000000
         tint.alpha = 0x33 * alpha / 255
         canvas.drawRoundRect(rect, r, r, tint)
+        behindIcon.alpha = alpha
+        canvas.drawRoundRect(rect, r, r, behindIcon)
         canvas.restore()
+    }
+
+    override fun onBoundsChange(bounds: Rect) {
+        behindIcon.shader = iconShadeFor(Rect(0, 0, bounds.width(), bounds.height()), ICON_SHADE)
     }
 
     override fun setAlpha(alpha: Int) {

@@ -40,6 +40,7 @@ fun Context.glassFor(look: Look, cornerRadius: Float?, blurred: Boolean, holdsTe
             tint = if (holdsText) 0x73101412 else 0x1F000000, // 12%, as tuned in the launcher
             glowAlpha = 0.2f, // the launcher's frosted glow (Theme.kt)
             glowDepth = dp(24).toFloat(),
+            iconShade = if (holdsText) 0f else ICON_SHADE,
         )
         else -> GlassDrawable(
             cornerRadius, rim,
@@ -49,9 +50,13 @@ fun Context.glassFor(look: Look, cornerRadius: Float?, blurred: Boolean, holdsTe
             edgeGlow = 0.08f,
             // The lens cues are drawn for circles; the rounded confirmation card keeps plain glass
             lens = if (holdsText) 0f else 1f,
+            iconShade = if (holdsText) 0f else ICON_SHADE,
         )
     }
 }
+
+/** How dark the patch behind an icon is on blurred glass, so it reads over busy screens. */
+const val ICON_SHADE = 0.32f
 
 /** How much the screen behind the menu is blurred in each look, or null for none. */
 fun Context.menuBlurRadius(look: Look): Int? = when {
