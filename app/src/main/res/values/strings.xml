@@ -61,6 +61,9 @@
     <string name="fill_cyan">Cyan</string>
     <string name="fill_pink">Pink</string>
     <string name="fill_paper">Paper</string>
+    <string name="fill_pop_garden">Pop Garden · green, pink shadow</string>
+    <string name="fill_baby_blue">Baby Blue · pink shadow</string>
+    <string name="fill_rave">Rave · lime, deep green shadow</string>
     <string name="brutal_shape_label">Neubrutal corners</string>
     <string name="shape_rounded">Round Paper</string>
     <string name="shape_square">Square Punch</string>

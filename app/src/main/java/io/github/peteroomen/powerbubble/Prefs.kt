@@ -7,9 +7,14 @@ enum class TapMode { MENU, SCREEN_OFF }
 /** What the accessibility shortcut (button, gesture or volume keys) does. */
 enum class ShortcutAction { TOGGLE_BUBBLE, SCREEN_OFF }
 
-/** Flat Loud Taxi fills, kept separately from existing glass preferences. */
-enum class BrutalFill(val color: Int) {
+/**
+ * Flat Loud fills, kept separately from existing glass preferences. The combos borrow Loud's bolder
+ * palettes and colour the hard shadow too. Append new values: the preference stores the ordinal.
+ */
+enum class BrutalFill(val color: Int, val shadow: Int = BRUTAL_INK) {
     YELLOW(0xFFFFE600.toInt()), CYAN(0xFF00CBE5.toInt()), PINK(0xFFFF6395.toInt()), PAPER(0xFFFFFDF6.toInt()),
+    POP_GARDEN(0xFF4BE37A.toInt(), 0xFFFF5FA8.toInt()), BABY_BLUE(0xFF9FD8FF.toInt(), 0xFFFF9ACB.toInt()),
+    RAVE(0xFFB8F25C.toInt(), 0xFF0E3B2C.toInt()),
 }
 
 class Prefs(context: Context) {

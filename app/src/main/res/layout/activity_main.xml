@@ -121,6 +121,9 @@
                 <RadioButton android:id="@+id/fillCyan" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_cyan" />
                 <RadioButton android:id="@+id/fillPink" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_pink" />
                 <RadioButton android:id="@+id/fillPaper" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_paper" />
+                <RadioButton android:id="@+id/fillPopGarden" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_pop_garden" />
+                <RadioButton android:id="@+id/fillBabyBlue" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_baby_blue" />
+                <RadioButton android:id="@+id/fillRave" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="48dp" android:text="@string/fill_rave" />
             </RadioGroup>
             <TextView style="@style/Body" android:text="@string/brutal_shape_label" />
             <RadioGroup android:id="@+id/brutalShape" android:layout_width="match_parent" android:layout_height="wrap_content">
