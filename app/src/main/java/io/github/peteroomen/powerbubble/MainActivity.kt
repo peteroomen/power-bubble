@@ -138,12 +138,18 @@ class MainActivity : Activity() {
             BrutalFill.CYAN -> R.id.fillCyan
             BrutalFill.PINK -> R.id.fillPink
             BrutalFill.PAPER -> R.id.fillPaper
+            BrutalFill.POP_GARDEN -> R.id.fillPopGarden
+            BrutalFill.BABY_BLUE -> R.id.fillBabyBlue
+            BrutalFill.RAVE -> R.id.fillRave
         })
         brutalFill.setOnCheckedChangeListener { _, id ->
             prefs.brutalFill = when (id) {
                 R.id.fillCyan -> BrutalFill.CYAN
                 R.id.fillPink -> BrutalFill.PINK
                 R.id.fillPaper -> BrutalFill.PAPER
+                R.id.fillPopGarden -> BrutalFill.POP_GARDEN
+                R.id.fillBabyBlue -> BrutalFill.BABY_BLUE
+                R.id.fillRave -> BrutalFill.RAVE
                 else -> BrutalFill.YELLOW
             }
             BubbleService.instance?.onLookChanged()
