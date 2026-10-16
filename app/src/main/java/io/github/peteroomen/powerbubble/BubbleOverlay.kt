@@ -153,7 +153,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
                 if (patch != null && lensOn && params.x == x && params.y == y && !touching) {
                     // The shader compiles on the phone; if that fails, stay on plain glass and stop capturing
                     val lens = try {
-                        LensDrawable(patch, service.dp(12).toFloat(), service.dp(6).toFloat()) { params.x to params.y }
+                        LensDrawable(patch, service.dp(16).toFloat(), service.dp(9).toFloat()) { params.x to params.y }
                     } catch (e: RuntimeException) {
                         android.util.Log.w("PowerBubble", "Lens shader unavailable", e)
                         lensFailed = true

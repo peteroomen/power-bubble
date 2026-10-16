@@ -38,7 +38,7 @@ fun Context.glassFor(look: Look, cornerRadius: Float?, blurred: Boolean, holdsTe
         look == Look.BLUR -> GlassDrawable(
             cornerRadius, rim,
             tint = if (holdsText) 0x73101412 else 0x1F000000, // 12%, as tuned in the launcher
-            glowAlpha = 0.15f,
+            glowAlpha = 0.2f, // the launcher's frosted glow (Theme.kt)
             glowDepth = dp(24).toFloat(),
         )
         else -> GlassDrawable(

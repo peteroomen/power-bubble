@@ -73,7 +73,7 @@ object Lens {
 
 /**
  * The bubble as a lens over [patch]: the launcher's clear glass shader with its settings (a bevel of
- * up to 12dp bending light in by up to 6dp), under its 20% tint. [origin] gives the bubble's
+ * up to 16dp bending light in by up to 9dp), under its 20% tint, as on its music card. [origin] gives the bubble's
  * top-left corner on screen each frame.
  */
 @TargetApi(Build.VERSION_CODES.TIRAMISU)
@@ -107,7 +107,7 @@ class LensDrawable(
         shader.setFloatUniform("size", rect.width(), rect.height())
         shader.setFloatUniform("radius", r)
         shader.setFloatUniform("bevel", minOf(shortest * 0.25f, bevelMax))
-        shader.setFloatUniform("strength", minOf(shortest * 0.12f, strengthMax))
+        shader.setFloatUniform("strength", minOf(shortest * 0.16f, strengthMax))
         shader.setFloatUniform("zoom", 1f)
         shader.setFloatUniform("panelOrigin", (x + bounds.left).toFloat(), (y + bounds.top).toFloat())
         shader.setFloatUniform("imageOrigin", patch.area.left.toFloat(), patch.area.top.toFloat())
@@ -138,7 +138,7 @@ class LensDrawable(
     override fun getOpacity() = PixelFormat.TRANSLUCENT
 
     private companion object {
-        // The niagara-like launcher's clear glass shader (GlassEdge.kt), unchanged
+        // The niagara-like launcher's clear glass shader (GlassEdge.kt), unchanged; keep the two in step
         const val CLEAR_AGSL = """
             uniform shader image;
             uniform float2 size;
@@ -176,16 +176,16 @@ class LensDrawable(
 
                 half3 c;
                 c.r = wallpaperAt(base - n * bend).r;
-                c.g = wallpaperAt(base - n * bend * 1.08).g;
-                c.b = wallpaperAt(base - n * bend * 1.16).b;
+                c.g = wallpaperAt(base - n * bend * 1.1).g;
+                c.b = wallpaperAt(base - n * bend * 1.2).b;
 
                 half lum = dot(c, half3(0.2126, 0.7152, 0.0722));
                 c = mix(half3(lum), c, 1.2);
 
                 float facing = abs(dot(n, float2(-0.7071, -0.7071)));
-                float rim = (1.0 - smoothstep(0.0, 3.0, inside)) * (0.3 + 0.7 * facing);
-                float glow = (1.0 - smoothstep(0.0, bevel * 0.8, inside)) * 0.07;
-                c = c * 0.95 + 0.05 + half(rim * 0.55 + glow);
+                float rim = (1.0 - smoothstep(0.0, 4.5, inside)) * (0.35 + 0.65 * facing);
+                float glow = (1.0 - smoothstep(0.0, bevel * 0.8, inside)) * 0.12;
+                c = c * 0.95 + 0.05 + half(rim * 0.8 + glow);
                 return half4(clamp(c, 0.0, 1.0), 1.0);
             }
         """
