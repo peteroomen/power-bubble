@@ -13,6 +13,9 @@ import android.view.accessibility.AccessibilityEvent
 class BubbleService : AccessibilityService() {
 
     companion object {
+        private const val LENS_EVENTS = AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or
+            AccessibilityEvent.TYPE_VIEW_SCROLLED or AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+
         @Volatile
         var instance: BubbleService? = null
             private set
@@ -39,6 +42,7 @@ class BubbleService : AccessibilityService() {
         instance = this
         prefs = Prefs(this)
         overlay = BubbleOverlay(this, prefs).also { if (prefs.visible) it.show() }
+        updateEvents()
         accessibilityButtonController.registerAccessibilityButtonCallback(shortcut)
         BubbleTileService.refresh(this)
     }
@@ -68,7 +72,25 @@ class BubbleService : AccessibilityService() {
         overlay?.onScreenChanged()
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {}
+    /**
+     * Only with True lens on: hears that something on screen changed or scrolled, so the lens can
+     * refresh. It looks at nothing but the event's type and app; it can't read window content.
+     */
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        // Our own bubble hiding for a capture would otherwise start another capture
+        if (event == null || event.packageName == packageName) return
+        overlay?.onScreenChanging()
+    }
+
+    /** Listens for screen changes only while True lens is in use. */
+    private fun updateEvents() {
+        val info = serviceInfo ?: return
+        val want = if (prefs.look == Look.GLASS && prefs.trueLens && Lens.supported()) LENS_EVENTS else 0
+        if (info.eventTypes == want) return
+        info.eventTypes = want
+        info.notificationTimeout = if (want != 0) 100 else 0 // a burst of changes arrives as one
+        serviceInfo = info
+    }
 
     override fun onInterrupt() {}
 
@@ -83,6 +105,7 @@ class BubbleService : AccessibilityService() {
     }
 
     fun onLookChanged() {
+        updateEvents()
         overlay?.applyLook()
     }
 
