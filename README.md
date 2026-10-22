@@ -10,7 +10,7 @@ A small bubble sits on the edge of the screen above every app. Tap it and four c
 
 You can also switch tapping to turn the screen off straight away, with a long press for the menu.
 
-The accessibility shortcut (the accessibility button in the navigation bar, the accessibility gesture or the volume-key shortcut) shows and hides the bubble by default. Under **When I use the accessibility shortcut**, you can set it to turn the screen off instead, so the button works as a power key even with the bubble hidden.
+The accessibility shortcut (the accessibility button in the navigation bar, the accessibility gesture or the volume-key shortcut) opens the menu by default, so the controls are one press away without finding the bubble; press it again to close the menu. If the bubble is hidden, it appears for the menu and goes again afterwards. Under **When I use the accessibility shortcut**, you can set it to show and hide the bubble, or to turn the screen off, so the button works as a power key even with the bubble hidden. Android keeps a long press of the accessibility button for itself (it chooses which feature the button runs), so apps only hear a press.
 
 The bubble and its buttons use the same liquid glass look as the launcher. On Android 12+ phones that support window blur, the bubble blurs whatever is behind it (about as much as the launcher's Blur panels in Blur, barely in Glass), and opening the menu blurs the whole screen behind it.
 

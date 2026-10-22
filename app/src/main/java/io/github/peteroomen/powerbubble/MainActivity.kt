@@ -118,9 +118,19 @@ class MainActivity : Activity() {
         }
 
         shortcutAction.setOnCheckedChangeListener(null)
-        shortcutAction.check(if (prefs.shortcutAction == ShortcutAction.SCREEN_OFF) R.id.shortcutScreenOff else R.id.shortcutToggle)
+        shortcutAction.check(
+            when (prefs.shortcutAction) {
+                ShortcutAction.OPEN_MENU -> R.id.shortcutMenu
+                ShortcutAction.SCREEN_OFF -> R.id.shortcutScreenOff
+                ShortcutAction.TOGGLE_BUBBLE -> R.id.shortcutToggle
+            },
+        )
         shortcutAction.setOnCheckedChangeListener { _, id ->
-            prefs.shortcutAction = if (id == R.id.shortcutScreenOff) ShortcutAction.SCREEN_OFF else ShortcutAction.TOGGLE_BUBBLE
+            prefs.shortcutAction = when (id) {
+                R.id.shortcutMenu -> ShortcutAction.OPEN_MENU
+                R.id.shortcutScreenOff -> ShortcutAction.SCREEN_OFF
+                else -> ShortcutAction.TOGGLE_BUBBLE
+            }
         }
 
         trueLens.setOnCheckedChangeListener(null)

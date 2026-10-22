@@ -54,8 +54,13 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     private var attached = false
 
     private val dismissSize = service.dp(64)
+    // The target's window leaves room round it, so it isn't cut off when it grows under the bubble
+    private val dismissWindow = service.dp(84)
     private val dismiss = makeDismiss()
-    private val dismissParams = overlayParams(dismissSize, dismissSize, touchable = false)
+    private val dismissFrame = FrameLayout(service).apply {
+        addView(dismiss, FrameLayout.LayoutParams(dismissSize, dismissSize, Gravity.CENTER))
+    }
+    private val dismissParams = overlayParams(dismissWindow, dismissWindow, touchable = false)
     private var dismissAttached = false
     private var dismissHot = false
 
@@ -228,9 +233,21 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         val m = menu ?: return
         menu = null
         wm.removeView(m)
+        // Shown only for the menu (from the accessibility shortcut): it goes again with it
+        if (!prefs.visible) return hide()
         bubble.visibility = View.VISIBLE
         wake()
         ensureLens()
+    }
+
+    /**
+     * The accessibility shortcut: opens the menu, or closes it if it's open. A hidden bubble
+     * appears for the menu and goes again when it closes.
+     */
+    fun toggleMenu() {
+        if (menu != null) return closeMenu()
+        show()
+        openMenu()
     }
 
     private fun openMenu() {
@@ -391,8 +408,8 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
         params.x = x.coerceIn(0, screen.x - size)
         params.y = y.coerceIn(0, screen.y - size)
 
-        val targetX = dismissParams.x + dismissSize / 2f
-        val targetY = dismissParams.y + dismissSize / 2f
+        val targetX = dismissParams.x + dismissWindow / 2f
+        val targetY = dismissParams.y + dismissWindow / 2f
         val hot = hypot(params.x + size / 2f - targetX, params.y + size / 2f - targetY) < service.dp(72)
         setDismissHot(hot)
         if (hot) { // pull the bubble onto the target
@@ -455,12 +472,12 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     private fun showDismiss() {
         if (dismissAttached) return
         val screen = screenSize()
-        dismissParams.x = (screen.x - dismissSize) / 2
-        dismissParams.y = screen.y - dismissSize - service.dp(96)
+        dismissParams.x = (screen.x - dismissWindow) / 2
+        dismissParams.y = screen.y - dismissSize - service.dp(96) - (dismissWindow - dismissSize) / 2
         dismiss.alpha = 0f
         dismiss.scaleX = 0.6f
         dismiss.scaleY = 0.6f
-        wm.addView(dismiss, dismissParams)
+        wm.addView(dismissFrame, dismissParams)
         dismissAttached = true
         dismiss.animate().alpha(1f).scaleX(1f).scaleY(1f).setDuration(180).start()
     }
@@ -468,7 +485,7 @@ class BubbleOverlay(private val service: BubbleService, private val prefs: Prefs
     private fun hideDismiss() {
         setDismissHot(false)
         if (!dismissAttached) return
-        wm.removeView(dismiss)
+        wm.removeView(dismissFrame)
         dismissAttached = false
     }
 

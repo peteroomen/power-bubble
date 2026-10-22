@@ -24,11 +24,13 @@ class BubbleService : AccessibilityService() {
     private lateinit var prefs: Prefs
     private var overlay: BubbleOverlay? = null
 
-    // The accessibility shortcut (button, gesture or volume keys) shows and hides the bubble or turns
-    // the screen off, rather than switching the whole service off
+    // The accessibility shortcut (button, gesture or volume keys) opens the menu, shows and hides the
+    // bubble, or turns the screen off, rather than switching the whole service off. Android only
+    // reports a press of it; a long press is its own (choosing which feature the button runs).
     private val shortcut = object : AccessibilityButtonController.AccessibilityButtonCallback() {
         override fun onClicked(controller: AccessibilityButtonController) {
             when (prefs.shortcutAction) {
+                ShortcutAction.OPEN_MENU -> overlay?.toggleMenu()
                 ShortcutAction.TOGGLE_BUBBLE -> toggleBubble()
                 ShortcutAction.SCREEN_OFF -> {
                     overlay?.closeMenu()

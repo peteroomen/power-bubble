@@ -72,6 +72,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <RadioButton
+                android:id="@+id/shortcutMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
+                android:text="@string/shortcut_menu" />
+            <RadioButton
                 android:id="@+id/shortcutToggle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
