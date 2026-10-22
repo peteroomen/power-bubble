@@ -45,9 +45,10 @@
     <string name="tap_menu">Open the menu</string>
     <string name="tap_screen_off">Turn the screen off (hold for the menu)</string>
     <string name="shortcut_label">When I use the accessibility shortcut</string>
+    <string name="shortcut_menu">Open the power menu (the bubble appears for it, even if hidden)</string>
     <string name="shortcut_toggle">Show or hide the bubble</string>
     <string name="shortcut_screen_off">Turn the screen off</string>
-    <string name="shortcut_hint">The accessibility button, gesture or volume keys. Set one up under Accessibility › Power Bubble › Power Bubble shortcut. Turning the screen off from it works even with the bubble hidden.</string>
+    <string name="shortcut_hint">The accessibility button, gesture or volume keys. Set one up under Accessibility › Power Bubble › Power Bubble shortcut. Opening the menu and turning the screen off from it work even with the bubble hidden. Android keeps a long press of the accessibility button for itself (to choose what it runs), so a press is all the bubble can use.</string>
     <string name="bring_back">Getting it back after you hide it</string>
     <string name="bring_back_body">• The accessibility shortcut, when it\'s set to show or hide the bubble (above).\n• The Power bubble Quick Settings tile.\n• Hold the Power Bubble app icon and choose Show / hide bubble.</string>
     <string name="look_label">Look</string>
